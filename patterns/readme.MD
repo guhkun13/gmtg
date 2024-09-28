@@ -27,6 +27,13 @@ how much is pish tegj glob glob ?
  - ^(how much is) (([a-z]+ )+)\?$
  
 4. question about how many credits in mineral value
+how many Credits is glob glob Gold ?
+how many Credits is glob glob glob glob glob glob Gold ?
+how many Credits is pish tegj glob Iron ?
+
+ - ^how many Credits is ((?:\w+ )+)(\w+) \?$
+ - ^how many Credits is (([a-z]+ )+)([A-Z][a-z]+) \?$
+
 5. question about credits comparison
 6. question about new currency comparison
 7. Invalid format

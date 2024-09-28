@@ -9,15 +9,12 @@ how much is pish tegj glob glob ?
 > pish tegj glob glob is 42
 
 how many Credits is glob prok Silver ?
-> glob prok Silver is 68 Credits
-
 how many Credits is glob glob Gold ?
-> glob glob Gold is 28900 Credits
-
 how many Credits is glob glob glob glob glob glob Gold ?
-> Requested number is in invalid format
-
 how many Credits is pish tegj glob Iron ?
+> glob prok Silver is 68 Credits
+> glob glob Gold is 28900 Credits
+> Requested number is in invalid format
 > pish tegj glob Iron is 8015.5 Credits
 
 Does pish tegj glob glob Iron has more Credits than glob glob Gold ?
