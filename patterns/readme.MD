@@ -1,3 +1,8 @@
+
+Sites to validate regex online: 
+- https://regexr.com/
+- https://regex101.com/
+
 We need to evaluate the text fall into which categories inspecting their pattern.
 
 Based on the example, we can see that there are some text categories:
@@ -55,3 +60,7 @@ so for currency, we can use (later)
 comparison:
 ((?:[a-z]\s+)+)
 (([a-z]+ )+)
+
+pattern := `^Is ((?:[a-z]+\s?)+) (larger|smaller) than ((?:[a-z]+\s?)+)\?$`
+pattern := `^Is ((?:[a-z]+\s?)+) (larger|smaller) than ((?:[a-z]+\s?)+)\s?\?$`
+

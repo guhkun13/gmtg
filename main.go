@@ -16,16 +16,17 @@ import (
 
 const (
 	regexRomanChar string = "([IVXLCDM])"
-	regexCurrency  string = `((?:[a-z]+\s+)+)`
-	regexMineral   string = `([A-Z][a-z]+\s+)`
+	regexCurrency  string = `((?:[a-z]+\s?)+)`
+	regexMineral   string = `([A-Z][a-z]+\s?)`
 )
 
 var (
-	regexNewCurrency              string = fmt.Sprintf(`^%sis %s`, regexCurrency, regexRomanChar)
-	regexNewMineral               string = fmt.Sprintf(`^%s%sis (\d+) Credits$`, regexCurrency, regexMineral)
-	regexHowMuchQuestion          string = fmt.Sprintf(`^(how much is) %s\?$`, regexCurrency)
-	regexHowManyCreditQuestion    string = fmt.Sprintf(`^how many Credits is %s%s\?$`, regexCurrency, regexMineral)
-	regexCreditComparisonQuestion string = fmt.Sprintf(`^Does %s%shas (less|more) Credits than %s%s\?`, regexCurrency, regexMineral, regexCurrency, regexMineral)
+	regexNewCurrency                string = fmt.Sprintf(`^%s is %s`, regexCurrency, regexRomanChar)
+	regexNewMineral                 string = fmt.Sprintf(`^%s%s is (\d+) Credits$`, regexCurrency, regexMineral)
+	regexHowMuchQuestion            string = fmt.Sprintf(`^[H|h]ow much is %s\?$`, regexCurrency)
+	regexHowManyCreditQuestion      string = fmt.Sprintf(`^[H|h]ow many Credits is %s%s\?$`, regexCurrency, regexMineral)
+	regexCreditComparisonQuestion   string = fmt.Sprintf(`^[D|d]oes %s%s has (less|more) Credits than %s%s\?`, regexCurrency, regexMineral, regexCurrency, regexMineral)
+	regexCurrencyComparisonQuestion string = fmt.Sprintf(`^Is %s (larger|smaller) than %s\?$`, regexCurrency, regexCurrency)
 )
 
 var newCurrenciesMap = make(map[string]string)
@@ -100,6 +101,8 @@ func evaluateText(text string) {
 		AnswerHowManyCreditQuestion(text)
 	} else if IsMatchCreditComparisonQuestion(text) {
 		AnswerCreditComparisonQuestion(text)
+	} else if IsMatchCurrencyComparisonQuestion(text) {
+		AnswerCurrencyComparisonQuestion(text)
 	}
 }
 
@@ -121,6 +124,10 @@ func IsMatchHowManyCreditQuestion(text string) bool {
 
 func IsMatchCreditComparisonQuestion(text string) bool {
 	return regexp.MustCompile(regexCreditComparisonQuestion).Match([]byte(text))
+}
+
+func IsMatchCurrencyComparisonQuestion(text string) bool {
+	return regexp.MustCompile(regexCurrencyComparisonQuestion).Match([]byte(text))
 }
 
 // assigning new currency to roman value
@@ -215,7 +222,7 @@ func AnswerHowMuchQuestion(text string) {
 	values := regexp.MustCompile(regexHowMuchQuestion).FindStringSubmatch(text)
 	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
-	currency := trimRight(values[2])
+	currency := trimRight(values[1])
 
 	romanStr, err := ConvertNewCurrencyToRoman(currency)
 	if err != nil {
@@ -304,6 +311,58 @@ func AnswerCreditComparisonQuestion(text string) {
 	answer := fmt.Sprintf("%s has %s Credits than %s", leftCurrencyMineral, comparator, rightCurrencyMineral)
 	fmt.Println("answer", answer)
 
+}
+
+func AnswerCurrencyComparisonQuestion(text string) {
+	log.Debug().Msg("AnswerCurrencyComparisonQuestion")
+
+	pattern := regexp.MustCompile(regexCurrencyComparisonQuestion)
+	values := pattern.FindStringSubmatch(text)
+	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+
+	leftCurrency := trimRight(values[1])
+	rightCurrency := trimRight(values[3])
+
+	leftCurrencyValue, err := getCurrencyValue(leftCurrency)
+	if err != nil {
+		log.Error().Err(err).Msg("getCurrencyValue failed")
+		return
+	}
+
+	rightCurrencyValue, err := getCurrencyValue(rightCurrency)
+	if err != nil {
+		log.Error().Err(err).Msg("getCurrencyValue failed")
+		return
+	}
+
+	fmt.Println("leftCurrency =", leftCurrency)
+	fmt.Println("leftCurrencyValue =", leftCurrencyValue)
+
+	fmt.Println("rightCurrency =", rightCurrency)
+	fmt.Println("rightCurrencyValue =", rightCurrencyValue)
+
+	comparator := "smaller"
+	if leftCurrencyValue > rightCurrencyValue {
+		comparator = "larger"
+	}
+
+	answer := fmt.Sprintf("%s is %s than %s", leftCurrency, comparator, rightCurrency)
+	fmt.Println("answer", answer)
+
+}
+
+func getCurrencyValue(text string) (int64, error) {
+
+	romanStr, err := ConvertNewCurrencyToRoman(text)
+	if err != nil {
+		return 0, err
+	}
+	romanNum, err := numerus.Parse(romanStr)
+	if err != nil {
+		return 0, err
+	}
+
+	return int64(romanNum.Value()), nil
 }
 
 func getMineralValue(currency, mineral string) (value float64, err error) {
