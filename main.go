@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	regexNewCurrency string = `^([a-z]+) is ([IVXLCDM])$`
-	regexNewMineral  string = `^(([a-z]+ )+)([A-Z][a-z]+) is (\d+) Credits$`
+	regexNewCurrency     string = `^([a-z]+) is ([IVXLCDM])$`
+	regexNewMineral      string = `^(([a-z]+ )+)([A-Z][a-z]+) is (\d+) Credits$`
+	regexHowMuchQuestion string = `^(how much is) (([a-z]+ )+)\?$`
 )
 
 var newCurrenciesMap = make(map[string]string)
@@ -67,8 +68,7 @@ func main() {
 	et := time.Now()
 	fmt.Println(">> Finish at ", et)
 
-	fmt.Println(">> Execution time ", et.Sub(st).Microseconds())
-	// fmt.Println(">> Execution time ", et.Sub(st).Seconds())
+	fmt.Println(">> Execution time ", et.Sub(st))
 }
 
 func evaluateText(text string) {
@@ -77,18 +77,22 @@ func evaluateText(text string) {
 		AssignNewCurrency(text)
 	} else if IsMatchNewMineral(text) {
 		AssignNewMineral(text)
+	} else if IsMatchHowMuchQuestion(text) {
+		AnswerHowMuchQuestion(text)
 	}
 
 }
 
 func IsMatchNewCurrency(text string) bool {
-	pattern := regexp.MustCompile(regexNewCurrency)
-	return pattern.Match([]byte(text))
+	return regexp.MustCompile(regexNewCurrency).Match([]byte(text))
 }
 
 func IsMatchNewMineral(text string) bool {
-	pattern := regexp.MustCompile(regexNewMineral)
-	return pattern.Match([]byte(text))
+	return regexp.MustCompile(regexNewMineral).Match([]byte(text))
+}
+
+func IsMatchHowMuchQuestion(text string) bool {
+	return regexp.MustCompile(regexHowMuchQuestion).Match([]byte(text))
 }
 
 // assigning new currency to roman value
@@ -118,17 +122,16 @@ func ConvertNewCurrencyToRoman(text string) (roman string, err error) {
 		return CurrencyToRoman(text)
 	}
 
-	fmt.Println("more than 1 currency, iterate!")
+	// fmt.Println("more than 1 currency, iterate!")
 
 	finalRoman := ""
 	for _, c := range currencies {
-		fmt.Println("c", c)
 		roman, err = CurrencyToRoman(c)
 
 		finalRoman += roman
 	}
 
-	fmt.Println("finalRoman", finalRoman)
+	// fmt.Println("finalRoman", finalRoman)
 	return finalRoman, err
 }
 
@@ -143,32 +146,32 @@ func CurrencyToRoman(currency string) (string, error) {
 
 // assigning value to Mineral
 func AssignNewMineral(text string) {
-	log.Debug().Msg("AssignNewMineral")
+	// log.Debug().Msg("AssignNewMineral")
 
 	pattern := regexp.MustCompile(regexNewMineral)
 	values := pattern.FindStringSubmatch(text)
-	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	currency, mineral, strTotalAmount := values[1], values[3], values[4]
 
-	fmt.Println("currency", currency)
-	fmt.Println("mineral", mineral)
-	fmt.Println("strTotalAmount", strTotalAmount)
+	// fmt.Println("currency", currency)
+	// fmt.Println("mineral", mineral)
+	// fmt.Println("strTotalAmount", strTotalAmount)
 
-	romanValue, err := ConvertNewCurrencyToRoman(currency)
+	romanStr, err := ConvertNewCurrencyToRoman(currency)
 	if err != nil {
 		log.Error().Err(err).Msg("ConvertNewCurrencyToRoman failed")
 		return
 	}
-	fmt.Println("romanValue", romanValue)
+	// fmt.Println("romanValue", romanValue)
 
 	// from romanValue we need to make sure is it really ROMAN numeral or not
 
-	intVal, err := numerus.Parse(romanValue)
+	romanNum, err := numerus.Parse(romanStr)
 	if err != nil {
 		log.Error().Err(err).Msg("numerus.Parse failed")
 	}
-	fmt.Println("intVal", intVal.Value())
+	// fmt.Println("intVal", intVal.Value())
 
 	intTotalAmount, err := strconv.Atoi(strTotalAmount)
 	if err != nil {
@@ -176,14 +179,45 @@ func AssignNewMineral(text string) {
 		return
 	}
 
-	creditValue := float64(float64(intTotalAmount) / float64(int(intVal)))
+	creditValue := float64(float64(intTotalAmount) / float64(romanNum.Value()))
 
-	fmt.Println("creditValue", creditValue)
+	// fmt.Println("creditValue", creditValue)
 	newMineralsMap[mineral] = creditValue
 
 	log.Debug().
 		Interface("value", newMineralsMap).
 		Msg("newMineralsMap")
+
+}
+
+func AnswerHowMuchQuestion(text string) {
+	log.Debug().Msg("AnswerHowMuchQuestion")
+
+	pattern := regexp.MustCompile(regexHowMuchQuestion)
+	values := pattern.FindStringSubmatch(text)
+	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+
+	currency := values[2]
+	currency = strings.TrimRight(currency, " ")
+	fmt.Println("currency", currency)
+
+	romanStr, err := ConvertNewCurrencyToRoman(currency)
+	if err != nil {
+		log.Error().Err(err).Msg("ConvertNewCurrencyToRoman failed")
+	}
+
+	fmt.Println("romanStr", romanStr)
+
+	romanNum, err := numerus.Parse(romanStr)
+	if err != nil {
+		log.Error().Err(err).Msg("numerus.Parse failed")
+	}
+
+	fmt.Println("intValue", romanNum.Value())
+
+	answer := fmt.Sprintf("%s is %d", currency, romanNum.Value())
+
+	fmt.Println("answer", answer)
 
 }
 
