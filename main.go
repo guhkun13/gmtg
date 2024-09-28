@@ -23,9 +23,9 @@ const (
 var (
 	regexNewCurrency              string = fmt.Sprintf(`^%sis %s`, regexCurrency, regexRomanChar)
 	regexNewMineral               string = fmt.Sprintf(`^%s%sis (\d+) Credits$`, regexCurrency, regexMineral)
-	regexHowMuchQuestion          string = fmt.Sprintf(`^(how much is) %s\?$`, regexNewCurrency)
+	regexHowMuchQuestion          string = fmt.Sprintf(`^(how much is) %s\?$`, regexCurrency)
 	regexHowManyCreditQuestion    string = fmt.Sprintf(`^how many Credits is %s%s\?$`, regexCurrency, regexMineral)
-	regexCreditComparisonQuestion string = fmt.Sprintf(`^Does %s%s has (less|more) Credits than %s%s\?`, regexCurrency, regexMineral, regexCurrency, regexMineral)
+	regexCreditComparisonQuestion string = fmt.Sprintf(`^Does %s%shas (less|more) Credits than %s%s\?`, regexCurrency, regexMineral, regexCurrency, regexMineral)
 )
 
 var newCurrenciesMap = make(map[string]string)
@@ -94,14 +94,13 @@ func evaluateText(text string) {
 		AssignNewCurrency(text)
 	} else if IsMatchNewMineral(text) {
 		AssignNewMineral(text)
+	} else if IsMatchHowMuchQuestion(text) {
+		AnswerHowMuchQuestion(text)
+	} else if IsMatchHowManyCreditQuestion(text) {
+		AnswerHowManyCreditQuestion(text)
+	} else if IsMatchCreditComparisonQuestion(text) {
+		AnswerCreditComparisonQuestion(text)
 	}
-	// else if IsMatchHowMuchQuestion(text) {
-	// 	AnswerHowMuchQuestion(text)
-	// } else if IsMatchHowManyCreditQuestion(text) {
-	// 	AnswerHowManyCreditQuestion(text)
-	// } else if IsMatchCreditComparisonQuestion(text) {
-	// 	AnswerCreditComparisonQuestion(text)
-	// }
 }
 
 func IsMatchNewCurrency(text string) bool {
@@ -166,8 +165,7 @@ func CurrencyToRoman(currency string) (string, error) {
 func AssignNewMineral(text string) {
 	log.Debug().Msg("AssignNewMineral")
 
-	pattern := regexp.MustCompile(regexNewMineral)
-	values := pattern.FindStringSubmatch(text)
+	values := regexp.MustCompile(regexNewMineral).FindStringSubmatch(text)
 	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	currency := trimRight(values[1])
@@ -212,10 +210,9 @@ func AssignNewMineral(text string) {
 }
 
 func AnswerHowMuchQuestion(text string) {
-	// log.Debug().Msg("AnswerHowMuchQuestion")
+	log.Debug().Msg("AnswerHowMuchQuestion")
 
-	pattern := regexp.MustCompile(regexHowMuchQuestion)
-	values := pattern.FindStringSubmatch(text)
+	values := regexp.MustCompile(regexHowMuchQuestion).FindStringSubmatch(text)
 	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	currency := trimRight(values[2])
@@ -243,16 +240,16 @@ func AnswerHowMuchQuestion(text string) {
 func AnswerHowManyCreditQuestion(text string) {
 	// log.Debug().Msg("AnswerHowManyCreditQuestion")
 
-	pattern := regexp.MustCompile(regexHowManyCreditQuestion)
-	values := pattern.FindStringSubmatch(text)
+	values := regexp.MustCompile(regexHowManyCreditQuestion).FindStringSubmatch(text)
 	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	currency := trimRight(values[1])
-	mineral := values[3]
+	mineral := trimRight(values[2])
 
 	creditValue, err := getMineralValue(currency, mineral)
 	if err != nil {
 		log.Error().Err(err).Msg("getMineralValue failed")
+		return
 	}
 
 	currencyMineral := combineString(currency, mineral)
@@ -272,31 +269,30 @@ func AnswerCreditComparisonQuestion(text string) {
 	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	leftCurrency := trimRight(values[1])
-	leftMineral := values[2]
-	// comparator := values[3]
+	leftMineral := trimRight(values[2])
 	rightCurrency := trimRight(values[4])
-	rightMineral := values[5]
+	rightMineral := trimRight(values[5])
 
-	fmt.Println("leftCurrency =", leftCurrency)
-	fmt.Println("leftMineral =", leftMineral)
-	// fmt.Println("comparator =", comparator)
-	fmt.Println("rightCurrency =", rightCurrency)
-	fmt.Println("rightMineral =", rightMineral)
+	// fmt.Println("leftCurrency =", leftCurrency)
+	// fmt.Println("leftMineral =", leftMineral)
+	// fmt.Println("rightCurrency =", rightCurrency)
+	// fmt.Println("rightMineral =", rightMineral)
 
 	// calculate left value
 	leftCreditValue, err := getMineralValue(leftCurrency, leftMineral)
 	if err != nil {
 		log.Error().Err(err).Msg("getMineralValue for left side failed")
+		return
 	}
-
-	fmt.Println("leftCreditValue", leftCreditValue)
 
 	// calculate right value
 	rightCreditValue, err := getMineralValue(rightCurrency, rightMineral)
 	if err != nil {
 		log.Error().Err(err).Msg("getMineralValue for right side failed")
+		return
 	}
-	fmt.Println("rightCreditValue", rightCreditValue)
+	// fmt.Println("leftCreditValue", leftCreditValue)
+	// fmt.Println("rightCreditValue", rightCreditValue)
 
 	leftCurrencyMineral := combineString(leftCurrency, leftMineral)
 	rightCurrencyMineral := combineString(rightCurrency, rightMineral)
