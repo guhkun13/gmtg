@@ -15,10 +15,11 @@ import (
 )
 
 const (
-	regexNewCurrency           string = `^([a-z]+) is ([IVXLCDM])$`
-	regexNewMineral            string = `^(([a-z]+ )+)([A-Z][a-z]+) is (\d+) Credits$`
-	regexHowMuchQuestion       string = `^(how much is) (([a-z]+\s{0,1})+)\?$`
-	regexHowManyCreditQuestion string = `^how many Credits is (([a-z]+ )+)([A-Z][a-z]+)\s{0,1}\?$`
+	regexNewCurrency              string = `^([a-z]+) is ([IVXLCDM])$`
+	regexNewMineral               string = `^(([a-z]+ )+)([A-Z][a-z]+) is (\d+) Credits$`
+	regexHowMuchQuestion          string = `^(how much is) (([a-z]+\s{0,1})+)\?$`
+	regexHowManyCreditQuestion    string = `^how many Credits is (([a-z]+ )+)([A-Z][a-z]+)\s{0,1}\?$`
+	regexCreditComparisonQuestion string = `^Does ((?:[a-z]+\s+)+)([A-Z][a-z]+) has (less|more) Credits than ((?:[a-z]+\s+)+)([A-Z][a-z]+)\s?\?`
 )
 
 var newCurrenciesMap = make(map[string]string)
@@ -82,6 +83,8 @@ func evaluateText(text string) {
 		AnswerHowMuchQuestion(text)
 	} else if IsMatchHowManyCreditQuestion(text) {
 		AnswerHowManyCreditQuestion(text)
+	} else if IsMatchCreditComparisonQuestion(text) {
+		AnswerCreditComparisonQuestion(text)
 	}
 
 }
@@ -100,6 +103,10 @@ func IsMatchHowMuchQuestion(text string) bool {
 
 func IsMatchHowManyCreditQuestion(text string) bool {
 	return regexp.MustCompile(regexHowManyCreditQuestion).Match([]byte(text))
+}
+
+func IsMatchCreditComparisonQuestion(text string) bool {
+	return regexp.MustCompile(regexCreditComparisonQuestion).Match([]byte(text))
 }
 
 // assigning new currency to roman value
@@ -204,9 +211,7 @@ func AnswerHowMuchQuestion(text string) {
 	values := pattern.FindStringSubmatch(text)
 	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
-	currency := values[2]
-	currency = strings.TrimRight(currency, " ")
-	// fmt.Println("currency", currency)
+	currency := strings.TrimRight(values[2], " ")
 
 	romanStr, err := ConvertNewCurrencyToRoman(currency)
 	if err != nil {
@@ -229,15 +234,76 @@ func AnswerHowMuchQuestion(text string) {
 }
 
 func AnswerHowManyCreditQuestion(text string) {
-	log.Debug().Msg("AnswerHowManyCreditQuestion")
+	// log.Debug().Msg("AnswerHowManyCreditQuestion")
 
 	pattern := regexp.MustCompile(regexHowManyCreditQuestion)
 	values := pattern.FindStringSubmatch(text)
-	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
-	currency := values[1]
+	currency := strings.TrimRight(values[1], " ")
 	mineral := values[3]
 
+	creditValue, err := getMineralValue(currency, mineral)
+	if err != nil {
+		log.Error().Err(err).Msg("getMineralValue failed")
+	}
+
+	currencyMineral := combineString(currency, mineral)
+	answer := fmt.Sprintf("%s is %d Credits", currencyMineral, int(creditValue))
+	fmt.Println("answer", answer)
+}
+
+func combineString(currency, mineral string) string {
+	return fmt.Sprintf("%s %s", currency, mineral)
+}
+
+func AnswerCreditComparisonQuestion(text string) {
+	log.Debug().Msg("AnswerCreditComparisonQuestion")
+
+	pattern := regexp.MustCompile(regexCreditComparisonQuestion)
+	values := pattern.FindStringSubmatch(text)
+	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+
+	leftCurrency := strings.TrimRight(values[1], " ")
+	leftMineral := values[2]
+	// comparator := values[3]
+	rightCurrency := strings.TrimRight(values[4], " ")
+	rightMineral := values[5]
+
+	fmt.Println("leftCurrency =", leftCurrency)
+	fmt.Println("leftMineral =", leftMineral)
+	// fmt.Println("comparator =", comparator)
+	fmt.Println("rightCurrency =", rightCurrency)
+	fmt.Println("rightMineral =", rightMineral)
+
+	// calculate left value
+	leftCreditValue, err := getMineralValue(leftCurrency, leftMineral)
+	if err != nil {
+		log.Error().Err(err).Msg("getMineralValue for left side failed")
+	}
+
+	fmt.Println("leftCreditValue", leftCreditValue)
+
+	// calculate right value
+	rightCreditValue, err := getMineralValue(rightCurrency, rightMineral)
+	if err != nil {
+		log.Error().Err(err).Msg("getMineralValue for right side failed")
+	}
+	fmt.Println("rightCreditValue", rightCreditValue)
+
+	leftCurrencyMineral := combineString(leftCurrency, leftMineral)
+	rightCurrencyMineral := combineString(rightCurrency, rightMineral)
+	comparator := "less"
+	if leftCreditValue > rightCreditValue {
+		comparator = "more"
+	}
+
+	answer := fmt.Sprintf("%s has %s Credits than %s", leftCurrencyMineral, comparator, rightCurrencyMineral)
+	fmt.Println("answer", answer)
+
+}
+
+func getMineralValue(currency, mineral string) (value float64, err error) {
 	strRoman, err := ConvertNewCurrencyToRoman(currency)
 	if err != nil {
 		log.Error().Err(err).Msg("ConvertNewCurrencyToRoman failed")
@@ -249,32 +315,10 @@ func AnswerHowManyCreditQuestion(text string) {
 		fmt.Println("Requested number is in invalid format")
 		return
 	}
-	fmt.Println("romanNum", romanNum.Value())
+	// fmt.Println("romanNum", romanNum.Value())
 
 	creditValue := float64(newMineralsMap[mineral]) * float64(romanNum.Value())
-	fmt.Println("creditValue", creditValue)
+	// fmt.Println("creditValue", creditValue)
 
-	currencyMineral := currency + mineral
-	answer := fmt.Sprintf("%s is %d Credits", currencyMineral, int(creditValue))
-	fmt.Println("answer", answer)
-
+	return creditValue, nil
 }
-
-// strVal := "IV"
-// num, err := numerus.Parse(strVal)
-// if err != nil {
-// 	log.Error().Err(err).Msg("failed to parse")
-// }
-
-// log.Info().
-// 	Str("From", strVal).
-// 	Str("String", num.String()).
-// 	Int("Int", int(num.Value())).Msg("Parse result")
-
-// func asyncEvaluateText(wg *sync.WaitGroup, text string) {
-// 	if IsMatchNewCurrency(text) {
-// 		AssignNewCurrency(text)
-// 	}
-
-// 	wg.Done()
-// }

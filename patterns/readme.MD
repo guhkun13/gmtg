@@ -35,6 +35,23 @@ how many Credits is pish tegj glob Iron ?
  - ^how many Credits is (([a-z]+ )+)([A-Z][a-z]+) \?$
 
 5. question about credits comparison
+Does pish tegj glob glob Iron has more Credits than glob glob Gold ?
+Does glob glob Gold has less Credits than pish tegj glob glob Iron?
+ - ^Does (([a-z]+\ )+)([A-Z][a-z]+) has (less|more) Credits than (([a-z]+\ )+)([A-Z][a-z]+)\s{0,1}\?
+ - ^Does ((?:[a-z]+\s+)+)([A-Z][a-z]+) has (less|more) Credits than ((?:[a-z]+\s+)+)([A-Z][a-z]+)\s?\?
+
+
 6. question about new currency comparison
 7. Invalid format
 8. Question does not recognized
+
+
+notes for optimizaton;
+?: --> this is for non-capturing group, so that (([a-z]+ )+) can be grouped into 1 group instead of two\
+
+so for currency, we can use (later)
+((?:[a-z]\s+)+) to make it into 1 group instead of (([a-z]+ )+) that detected as 2 groups
+
+comparison:
+((?:[a-z]\s+)+)
+(([a-z]+ )+)
