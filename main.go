@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/dhowden/numerus"
@@ -59,19 +58,10 @@ func main() {
 	st := time.Now()
 	fmt.Println(">> Start at ", st)
 
-	// for scanner.Scan() {
-	// 	txt := scanner.Text()
-	// 	log.Info().Str("val", txt).Msgf("[%d]", idx)
-	// 	evaluateText(txt)
-	// 	idx++
-	// }
-
 	for scanner.Scan() {
 		txt := scanner.Text()
 		log.Info().Str("val", txt).Msgf("[%d]", idx)
-		// evaluateText(wg, txt)
 		evaluateText(txt)
-
 		idx++
 	}
 
@@ -93,27 +83,21 @@ func main() {
 
 func evaluateText(text string) {
 
-	wg := &sync.WaitGroup{}
 	if IsMatchNewCurrency(text) {
 		AssignNewCurrency(text)
 	} else if IsMatchNewMineral(text) {
 		AssignNewMineral(text)
 	} else if IsMatchHowMuchQuestion(text) {
-		wg.Add(1)
-		go AnswerHowMuchQuestion(wg, text)
+		AnswerHowMuchQuestion(text)
 	} else if IsMatchHowManyCreditQuestion(text) {
-		wg.Add(1)
-		go AnswerHowManyCreditQuestion(wg, text)
+		AnswerHowManyCreditQuestion(text)
 	} else if IsMatchCreditComparisonQuestion(text) {
-		wg.Add(1)
-		go AnswerCreditComparisonQuestion(wg, text)
+		AnswerCreditComparisonQuestion(text)
 	} else if IsMatchCurrencyComparisonQuestion(text) {
-		wg.Add(1)
-		go AnswerCurrencyComparisonQuestion(wg, text)
+		AnswerCurrencyComparisonQuestion(text)
 	} else {
 		fmt.Println(ErrQuestionUnrecognized)
 	}
-	wg.Wait()
 }
 
 func IsMatchNewCurrency(text string) bool {
@@ -226,8 +210,7 @@ func AssignNewMineral(text string) {
 
 }
 
-func AnswerHowMuchQuestion(wg *sync.WaitGroup, text string) {
-	defer wg.Done()
+func AnswerHowMuchQuestion(text string) {
 	log.Debug().Msg("AnswerHowMuchQuestion")
 
 	values := regexp.MustCompile(regexHowMuchQuestion).FindStringSubmatch(text)
@@ -255,8 +238,7 @@ func AnswerHowMuchQuestion(wg *sync.WaitGroup, text string) {
 
 }
 
-func AnswerHowManyCreditQuestion(wg *sync.WaitGroup, text string) {
-	defer wg.Done()
+func AnswerHowManyCreditQuestion(text string) {
 	// log.Debug().Msg("AnswerHowManyCreditQuestion")
 
 	values := regexp.MustCompile(regexHowManyCreditQuestion).FindStringSubmatch(text)
@@ -280,8 +262,7 @@ func combineString(currency, mineral string) string {
 	return fmt.Sprintf("%s %s", currency, mineral)
 }
 
-func AnswerCreditComparisonQuestion(wg *sync.WaitGroup, text string) {
-	defer wg.Done()
+func AnswerCreditComparisonQuestion(text string) {
 	log.Debug().Msg("AnswerCreditComparisonQuestion")
 
 	pattern := regexp.MustCompile(regexCreditComparisonQuestion)
@@ -323,10 +304,10 @@ func AnswerCreditComparisonQuestion(wg *sync.WaitGroup, text string) {
 
 	answer := fmt.Sprintf("%s has %s Credits than %s", leftCurrencyMineral, comparator, rightCurrencyMineral)
 	fmt.Println("answer", answer)
+
 }
 
-func AnswerCurrencyComparisonQuestion(wg *sync.WaitGroup, text string) {
-	defer wg.Done()
+func AnswerCurrencyComparisonQuestion(text string) {
 	log.Debug().Msg("AnswerCurrencyComparisonQuestion")
 
 	pattern := regexp.MustCompile(regexCurrencyComparisonQuestion)
@@ -361,6 +342,7 @@ func AnswerCurrencyComparisonQuestion(wg *sync.WaitGroup, text string) {
 
 	answer := fmt.Sprintf("%s is %s than %s", leftCurrency, comparator, rightCurrency)
 	fmt.Println("answer", answer)
+
 }
 
 func getCurrencyValue(text string) (int64, error) {
