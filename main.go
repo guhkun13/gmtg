@@ -246,6 +246,8 @@ func AnswerHowManyCreditQuestion(text string) {
 	romanNum, err := numerus.Parse(strRoman)
 	if err != nil {
 		log.Error().Err(err).Msg("numerus.Parse failed")
+		fmt.Println("Requested number is in invalid format")
+		return
 	}
 	fmt.Println("romanNum", romanNum.Value())
 
