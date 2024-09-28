@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sync"
+	"time"
 
 	"github.com/guhkun13/gmtg/config"
 	log "github.com/rs/zerolog/log"
@@ -31,19 +33,39 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	idx := 0
+	st := time.Now()
+	fmt.Println(">> Start at ", st)
+
+	wg := &sync.WaitGroup{}
 	for scanner.Scan() {
+		wg.Add(1)
 		txt := scanner.Text()
 		log.Info().Str("val", txt).Msgf("[%d]", idx)
-		evaluateText(txt)
-		idx++
+		// evaluateText(wg, txt)
+		asyncEvaluateText(wg, txt)
 
+		idx++
 	}
+	wg.Wait()
 
 	err = scanner.Err()
 	if err != nil {
 		log.Fatal().Err(err).Msg("scannerfailed  ")
 	}
 
+	et := time.Now()
+	fmt.Println(">> Finish at ", et)
+
+	fmt.Println(">> Execution time ", et.Sub(st).Microseconds())
+	// fmt.Println(">> Execution time ", et.Sub(st).Seconds())
+}
+
+func asyncEvaluateText(wg *sync.WaitGroup, text string) {
+	if IsMatchNewCurrency(text) {
+		AssignNewCurrency(text)
+	}
+
+	wg.Done()
 }
 
 func evaluateText(text string) {
