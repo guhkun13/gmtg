@@ -78,12 +78,12 @@ func (s *AnswerImpl) AnswerCreditComparisonQuestion(text string) (string, error)
 	rightCurrency := utils.TrimRight(values[4])
 	rightMineralName := utils.TrimRight(values[5])
 
-	log.Debug().
-		Str("leftCurrency", leftCurrency).
-		Str("leftMineralName", leftMineralName).
-		Str("rightCurrency", rightCurrency).
-		Str("rightMineralName", rightMineralName).
-		Msg("values")
+	// log.Debug().
+	// 	Str("leftCurrency", leftCurrency).
+	// 	Str("leftMineralName", leftMineralName).
+	// 	Str("rightCurrency", rightCurrency).
+	// 	Str("rightMineralName", rightMineralName).
+	// 	Msg("values")
 
 	leftMineral, err := s.MineralService.GetValue(leftCurrency, leftMineralName)
 	if err != nil {
@@ -132,14 +132,14 @@ func (s *AnswerImpl) AnswerCurrencyComparisonQuestion(text string) (string, erro
 		return "", err
 	}
 
-	log.Debug().
-		Str("leftCurrency", leftCurrency).
-		Str("leftRomanStr", leftRomanNum.String).
-		Int("leftRomanNum", int(leftRomanNum.Value)).
-		Str("rightCurrency", rightCurrency).
-		Str("rightRomanStr", rightRomanNum.String).
-		Int("rightRomanNum", int(rightRomanNum.Value)).
-		Msg("values")
+	// log.Debug().
+	// 	Str("leftCurrency", leftCurrency).
+	// 	Str("leftRomanStr", leftRomanNum.String).
+	// 	Int("leftRomanNum", int(leftRomanNum.Value)).
+	// 	Str("rightCurrency", rightCurrency).
+	// 	Str("rightRomanStr", rightRomanNum.String).
+	// 	Int("rightRomanNum", int(rightRomanNum.Value)).
+	// 	Msg("values")
 
 	comparator := "smaller"
 	if leftRomanNum.Value > rightRomanNum.Value {

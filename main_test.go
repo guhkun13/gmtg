@@ -117,11 +117,41 @@ func TestMain(t *testing.T) {
 		},
 	}
 
+	testCasesCurrencyComparisonQuestion := []struct {
+		desc  string
+		input string
+		want  string
+	}{
+		{
+			desc:  "#6 case 1",
+			input: "Is glob prok larger than pish pish?",
+			want:  "glob prok is smaller than pish pish",
+		},
+		{
+			desc:  "#6 case 2",
+			input: "Is tegj glob glob smaller than glob prok?",
+			want:  "tegj glob glob is larger than glob prok",
+		},
+	}
+
+	testCasesErrorUnknownText := []struct {
+		desc  string
+		input string
+		want  string
+	}{
+		{
+			desc:  "#7 case 1",
+			input: "how much wood could a woodchuck chuck if a woodchuck could chuck wood ?",
+			want:  "I have no idea what you are talking about",
+		},
+	}
+
 	testCases := append(testCasesAssignCurrencies, testCasesAssignMinerals...)
 	testCases = append(testCases, testCasesHowMuchQuestion...)
 	testCases = append(testCases, testCasesHowManyCreditQuestion...)
-	testCases = append(testCases, testCasesHowManyCreditQuestion...)
 	testCases = append(testCases, testCasesCreditComparisonQuestion...)
+	testCases = append(testCases, testCasesCurrencyComparisonQuestion...)
+	testCases = append(testCases, testCasesErrorUnknownText...)
 
 	for _, tt := range testCases {
 		t.Run(tt.desc, func(t *testing.T) {
