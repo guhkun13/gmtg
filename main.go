@@ -3,181 +3,77 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dhowden/numerus"
 	"github.com/guhkun13/gmtg/config"
+	"github.com/guhkun13/gmtg/file"
+	"github.com/guhkun13/gmtg/libs"
+	questionfactories "github.com/guhkun13/gmtg/question_factories"
+	"github.com/guhkun13/gmtg/utils"
 	log "github.com/rs/zerolog/log"
 )
 
-const (
-	regexRomanChar string = "([IVXLCDM])"
-	regexCurrency  string = `((?:[a-z]+\s?)+)`
-	regexMineral   string = `([A-Z][a-z]+\s?)`
-)
-
-const (
-	ErrQuestionUnrecognized string = "I have no idea what you are talking about "
-	ErrNumberInvalidFormat  string = "Requested number is in invalid format"
-)
-
-const (
-	FileInputName  string = "input.txt"
-	FileOutputName string = "output.txt"
-)
-
-var (
-	regexNewCurrency                string = fmt.Sprintf(`^%s is %s`, regexCurrency, regexRomanChar)
-	regexNewMineral                 string = fmt.Sprintf(`^%s%s is (\d+) Credits$`, regexCurrency, regexMineral)
-	regexHowMuchQuestion            string = fmt.Sprintf(`^[H|h]ow much is %s\?$`, regexCurrency)
-	regexHowManyCreditQuestion      string = fmt.Sprintf(`^[H|h]ow many Credits is %s%s\?$`, regexCurrency, regexMineral)
-	regexCreditComparisonQuestion   string = fmt.Sprintf(`^[D|d]oes %s%s has (less|more) Credits than %s%s\?`, regexCurrency, regexMineral, regexCurrency, regexMineral)
-	regexCurrencyComparisonQuestion string = fmt.Sprintf(`^Is %s (larger|smaller) than %s\?$`, regexCurrency, regexCurrency)
-)
-
-var newCurrenciesMap = make(map[string]string)
-var newMineralsMap = make(map[string]float64)
+var questionFactories = make(map[string]questionfactories.QuestionFactory)
 
 func main() {
 	config.InitLogger()
 
-	ResetFileOutput()
+	// commandFactories := map[string]commandfactories.CommandFactory{
+	// 	libs.CommandCurrency: &commandfactories.CurrencyImpl{},
+	// 	libs.CommandMineral:  &commandfactories.MineralImpl{},
+	// }
 
-	// read files
-	file, err := os.Open(FileInputName)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to open input file")
-	}
-	defer file.Close()
+	// questionFactories = map[string]questionfactories.QuestionFactory{
+	// 	libs.QuestionHowMuchCurrency: questionfactories.NewHowManyQuestionImpl(libs.RegexHowManyCreditQuestion),
+	// }
 
-	scanner := bufio.NewScanner(file)
+	fileReader := file.NewReader()
+	libs.EmptyFileContent(libs.FileOutputName)
+
+	fileInput := fileReader.ReadFile(libs.FileInputName)
+	scanner := bufio.NewScanner(fileInput)
+
 	idx := 0
 	st := time.Now()
-	// fmt.Println(">> Start at ", st)
-
 	for scanner.Scan() {
 		txt := scanner.Text()
-		log.Info().Str("text", txt).Msgf("[Question %d]", idx)
 		evaluateText(txt)
 		idx++
 	}
 
-	err = scanner.Err()
+	err := scanner.Err()
 	if err != nil {
 		log.Fatal().Err(err).Msg("scannerfailed  ")
 	}
 
 	et := time.Now()
-	// fmt.Println(">> Finish at ", et)
-	fmt.Println(">> Execution time ", et.Sub(st))
+	fmt.Println("[Total execution time] : ", et.Sub(st))
 }
 
 func evaluateText(text string) {
 
-	if IsMatchNewCurrency(text) {
+	if utils.IsMatchNewCurrency(text) {
 		AssignNewCurrency(text)
-	} else if IsMatchNewMineral(text) {
+	} else if utils.IsMatchNewMineral(text) {
 		AssignNewMineral(text)
-	} else if IsMatchHowMuchQuestion(text) {
-		AnswerHowMuchQuestion(text)
-	} else if IsMatchHowManyCreditQuestion(text) {
+	} else if utils.IsMatchHowMuchQuestion(text) {
+		factoryType := libs.QuestionHowManyCredit
+		questionFactory := questionFactories[factoryType]
+		questionFactory.Answer(text)
+
+	} else if utils.IsMatchHowManyCreditQuestion(text) {
 		AnswerHowManyCreditQuestion(text)
-	} else if IsMatchCreditComparisonQuestion(text) {
+	} else if utils.IsMatchCreditComparisonQuestion(text) {
 		AnswerCreditComparisonQuestion(text)
-	} else if IsMatchCurrencyComparisonQuestion(text) {
+	} else if utils.IsMatchCurrencyComparisonQuestion(text) {
 		AnswerCurrencyComparisonQuestion(text)
 	} else {
-		fmt.Println(ErrQuestionUnrecognized)
-		WriteToOutput(ErrQuestionUnrecognized)
+		fmt.Println(libs.ErrQuestionUnrecognized)
+		utils.WriteToOutput(libs.ErrQuestionUnrecognized)
 	}
-}
-
-func IsMatchNewCurrency(text string) bool {
-	return regexp.MustCompile(regexNewCurrency).Match([]byte(text))
-}
-
-func IsMatchNewMineral(text string) bool {
-	return regexp.MustCompile(regexNewMineral).Match([]byte(text))
-}
-
-func IsMatchHowMuchQuestion(text string) bool {
-	return regexp.MustCompile(regexHowMuchQuestion).Match([]byte(text))
-}
-
-func IsMatchHowManyCreditQuestion(text string) bool {
-	return regexp.MustCompile(regexHowManyCreditQuestion).Match([]byte(text))
-}
-
-func IsMatchCreditComparisonQuestion(text string) bool {
-	return regexp.MustCompile(regexCreditComparisonQuestion).Match([]byte(text))
-}
-
-func IsMatchCurrencyComparisonQuestion(text string) bool {
-	return regexp.MustCompile(regexCurrencyComparisonQuestion).Match([]byte(text))
-}
-
-func ResetFileOutput() {
-	if err := os.Truncate(FileOutputName, 0); err != nil {
-		log.Printf("Failed to truncate: %v", err)
-	}
-}
-
-func WriteToOutput(content string) {
-	// log.Debug().Str("content", content).Msg("WriteToOutput")
-
-	// open output file
-	fileOutput, err := os.OpenFile(FileOutputName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to open file")
-	}
-	defer fileOutput.Close()
-
-	// Write the content to the file
-	if _, err := fileOutput.WriteString(content + " \n"); err != nil {
-		log.Fatal().Err(err).Msg("Failed to write to file")
-	}
-}
-
-// assigning new currency to roman value
-func AssignNewCurrency(text string) {
-	values := regexp.MustCompile(regexNewCurrency).FindStringSubmatch(text)
-	currency := trimRight(values[1])
-	roman := trimRight(values[2])
-	newCurrenciesMap[currency] = roman
-}
-
-func ConvertNewCurrencyToRoman(text string) (result string, err error) {
-	currencies := strings.Split(text, " ")
-	if len(currencies) == 1 {
-		return CurrencyToRoman(text)
-	}
-
-	finalValue := ""
-	for _, c := range currencies {
-		roman, err := CurrencyToRoman(c)
-		if err != nil {
-			return "", err
-		}
-		finalValue += roman
-	}
-
-	return finalValue, err
-}
-
-func CurrencyToRoman(currency string) (string, error) {
-	// fmt.Println("CurrencyToRoman", currency)
-	// fmt.Println("newCurrenciesMap", newCurrenciesMap)
-
-	val, err := numerus.Parse(newCurrenciesMap[currency])
-	if err != nil {
-		return "", err
-	}
-
-	return val.String(), nil
 }
 
 // assigning value to Mineral
@@ -254,32 +150,6 @@ func AnswerHowMuchQuestion(text string) {
 
 	fmt.Println(answer)
 	WriteToOutput(answer)
-}
-
-func AnswerHowManyCreditQuestion(text string) {
-	// log.Debug().Msg("AnswerHowManyCreditQuestion")
-
-	values := regexp.MustCompile(regexHowManyCreditQuestion).FindStringSubmatch(text)
-	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
-
-	currency := trimRight(values[1])
-	mineral := trimRight(values[2])
-
-	creditValue, err := getMineralValue(currency, mineral)
-	if err != nil {
-		// log.Error().Err(err).Msg("getMineralValue failed")
-		return
-	}
-
-	currencyMineral := combineString(currency, mineral)
-	answer := fmt.Sprintf("%s is %d Credits", currencyMineral, int(creditValue))
-
-	fmt.Println(answer)
-	WriteToOutput(answer)
-}
-
-func combineString(currency, mineral string) string {
-	return fmt.Sprintf("%s %s", currency, mineral)
 }
 
 func AnswerCreditComparisonQuestion(text string) {
@@ -362,43 +232,4 @@ func AnswerCurrencyComparisonQuestion(text string) {
 	answer := fmt.Sprintf("%s is %s than %s", leftCurrency, comparator, rightCurrency)
 	fmt.Println(answer)
 	WriteToOutput(answer)
-}
-
-func getCurrencyValue(text string) (int64, error) {
-
-	romanStr, err := ConvertNewCurrencyToRoman(text)
-	if err != nil {
-		return 0, err
-	}
-	romanNum, err := numerus.Parse(romanStr)
-	if err != nil {
-		return 0, err
-	}
-
-	return int64(romanNum.Value()), nil
-}
-
-func getMineralValue(currency, mineral string) (value float64, err error) {
-	strRoman, err := ConvertNewCurrencyToRoman(currency)
-	if err != nil {
-		log.Error().Err(err).Msg("ConvertNewCurrencyToRoman failed")
-	}
-
-	romanNum, err := numerus.Parse(strRoman)
-	if err != nil {
-		log.Error().Err(err).Msg("numerus.Parse failed")
-		fmt.Println(ErrNumberInvalidFormat)
-		WriteToOutput(ErrNumberInvalidFormat)
-		return
-	}
-	// fmt.Println("romanNum", romanNum.Value())
-
-	creditValue := float64(newMineralsMap[mineral]) * float64(romanNum.Value())
-	// fmt.Println("creditValue", creditValue)
-
-	return creditValue, nil
-}
-
-func trimRight(text string) string {
-	return strings.TrimRight(text, " ")
 }

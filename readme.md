@@ -163,3 +163,7 @@ Complete rules can be checked on
 
 ## How to Run
 You can use this system by inputting galactic currencies, minerals, and querying their values as described above.
+
+## Resources
+
+1. For handling Roman Numerals, i use library package from: https://pkg.go.dev/github.com/dhowden/numerus 
