@@ -14,11 +14,15 @@ import (
 )
 
 // set isDebug to false by default so that DEBUG message not showed
-const isDebug = false
 
 func main() {
 
-	config.InitLogger(isDebug)
+	env, err := config.LoadEnv()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to load config")
+		panic(err)
+	}
+	config.InitLogger(env)
 
 	regexps := config.InitRegexps()
 	services := service.NewServices(regexps)
