@@ -35,7 +35,7 @@ func (s *AnswerImpl) AnswerHowMuchQuestion(text string) (string, error) {
 		return "", err
 	}
 
-	answer := fmt.Sprintf("%s is %d", currency, romanNum.Value())
+	answer := fmt.Sprintf("%s is %d", currency, romanNum.Value)
 
 	return answer, nil
 }
@@ -118,15 +118,15 @@ func (s *AnswerImpl) AnswerCurrencyComparisonQuestion(text string) (string, erro
 
 	log.Debug().
 		Str("leftCurrency", leftCurrency).
-		Str("leftRomanStr", leftRomanNum.String()).
-		Int("leftRomanNum", int(leftRomanNum.Value())).
+		Str("leftRomanStr", leftRomanNum.String).
+		Int("leftRomanNum", int(leftRomanNum.Value)).
 		Str("rightCurrency", rightCurrency).
-		Str("rightRomanStr", rightRomanNum.String()).
-		Int("rightRomanNum", int(rightRomanNum.Value())).
+		Str("rightRomanStr", rightRomanNum.String).
+		Int("rightRomanNum", int(rightRomanNum.Value)).
 		Msg("values")
 
 	comparator := "smaller"
-	if leftRomanNum.Value() > rightRomanNum.Value() {
+	if leftRomanNum.Value > rightRomanNum.Value {
 		comparator = "larger"
 	}
 

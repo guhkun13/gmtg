@@ -52,7 +52,7 @@ func (s *MineralImpl) AssignValue(text string) error {
 		return err
 	}
 
-	creditValue := float64(float64(intTotalAmount) / float64(romanNum.Value()))
+	creditValue := float64(float64(intTotalAmount) / float64(romanNum.Value))
 
 	mineralsMap[mineralName] = creditValue
 	return nil
@@ -71,7 +71,7 @@ func (s *MineralImpl) GetValue(currencies, mineral string) (res Mineral, err err
 		return
 	}
 
-	creditValue := val * float64(roman.Value())
+	creditValue := val * float64(roman.Value)
 
 	return Mineral{
 		Name:   mineral,

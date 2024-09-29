@@ -11,6 +11,11 @@ import (
 
 var currenciesMap = make(map[string]string)
 
+type RomanNumeral struct {
+	String string
+	Value  int64
+}
+
 type CurrencyImpl struct {
 	Regexp string
 }
@@ -41,7 +46,7 @@ func (s *CurrencyImpl) AssignValue(text string) error {
 	return nil
 }
 
-func (s *CurrencyImpl) GetValue(text string) (res numerus.Numeral, err error) {
+func (s *CurrencyImpl) GetValue(text string) (res RomanNumeral, err error) {
 	currencies := strings.Split(text, " ")
 	if len(currencies) == 1 {
 		return toRoman(text)
@@ -59,7 +64,7 @@ func (s *CurrencyImpl) GetValue(text string) (res numerus.Numeral, err error) {
 			err = errConv
 			return
 		}
-		romanString += roman.String()
+		romanString += roman.String
 	}
 
 	res, err = toRoman(romanString)
@@ -70,14 +75,17 @@ func (s *CurrencyImpl) GetValue(text string) (res numerus.Numeral, err error) {
 	return res, nil
 }
 
-func toRoman(currency string) (roman numerus.Numeral, err error) {
-	roman, err = numerus.Parse(currency)
+func toRoman(currency string) (RomanNumeral, error) {
+	roman, err := numerus.Parse(currency)
 	if err != nil {
 		err = libs.ErrNumberInvalidFormat
-		return
+		return RomanNumeral{}, err
 	}
 
-	return roman, nil
+	return RomanNumeral{
+		String: roman.String(),
+		Value:  int64(roman.Value()),
+	}, nil
 }
 
 func (s *CurrencyImpl) isExist(text string) (string, bool) {
