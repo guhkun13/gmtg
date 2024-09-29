@@ -16,7 +16,6 @@ import (
 // set isDebug to false by default so that DEBUG message not showed
 
 func main() {
-
 	env, err := config.LoadEnv()
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load config")
@@ -38,8 +37,8 @@ func main() {
 
 	st := time.Now()
 	for scanner.Scan() {
-		line := scanner.Text()
-		services.EvaluateText(line)
+		text := scanner.Text()
+		services.EvaluateText(text)
 	}
 
 	err = scanner.Err()
