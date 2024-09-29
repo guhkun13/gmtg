@@ -34,8 +34,7 @@ func (s *MineralImpl) IsMatchAssignValue(text string) bool {
 
 func (s *MineralImpl) AssignValue(text string) error {
 	values := regexp.MustCompile(s.Regexp).FindStringSubmatch(text)
-
-	log.Debug().Interface("values", values).Msg("FindStringSubmatch")
+	// log.Debug().Interface("values", values).Msg("FindStringSubmatch")
 
 	currency := utils.TrimRight(values[1])
 	mineralName := utils.TrimRight(values[2])

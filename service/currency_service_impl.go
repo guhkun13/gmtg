@@ -7,7 +7,6 @@ import (
 	"github.com/dhowden/numerus"
 	"github.com/guhkun13/gmtg/libs"
 	"github.com/guhkun13/gmtg/utils"
-	"github.com/rs/zerolog/log"
 )
 
 var currenciesMap = make(map[string]string)
@@ -37,7 +36,7 @@ func (s *CurrencyImpl) AssignValue(text string) error {
 	}
 
 	currenciesMap[currencyStr] = romanNumber.String()
-	log.Info().Interface("val", currenciesMap).Msg("new currencies")
+	// log.Info().Interface("val", currenciesMap).Msg("new currencies")
 
 	return nil
 }

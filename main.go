@@ -31,7 +31,7 @@ func main() {
 	st := time.Now()
 	for scanner.Scan() {
 		line := scanner.Text()
-		log.Info().Str("val", line).Msg("Line")
+		// log.Info().Str("val", line).Msg("Line")
 		services.EvaluateText(line)
 	}
 
