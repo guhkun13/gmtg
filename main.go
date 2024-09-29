@@ -22,6 +22,12 @@ const (
 
 const (
 	ErrQuestionUnrecognized string = "I have no idea what you are talking about "
+	ErrNumberInvalidFormat  string = "Requested number is in invalid format"
+)
+
+const (
+	FileInputName  string = "input.txt"
+	FileOutputName string = "output.txt"
 )
 
 var (
@@ -37,17 +43,18 @@ var newCurrenciesMap = make(map[string]string)
 var newMineralsMap = make(map[string]float64)
 
 func main() {
-	fmt.Println(regexNewCurrency)
-	fmt.Println(regexNewMineral)
-	fmt.Println(regexHowMuchQuestion)
-	fmt.Println(regexHowManyCreditQuestion)
-	fmt.Println(regexCreditComparisonQuestion)
+	// fmt.Println(regexNewCurrency)
+	// fmt.Println(regexNewMineral)
+	// fmt.Println(regexHowMuchQuestion)
+	// fmt.Println(regexHowManyCreditQuestion)
+	// fmt.Println(regexCreditComparisonQuestion)
 
 	config.InitLogger()
 
-	// read files
+	ResetFileOutput()
 
-	file, err := os.Open("input.txt")
+	// read files
+	file, err := os.Open(FileInputName)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to open input file")
 	}
@@ -56,11 +63,11 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	idx := 0
 	st := time.Now()
-	fmt.Println(">> Start at ", st)
+	// fmt.Println(">> Start at ", st)
 
 	for scanner.Scan() {
 		txt := scanner.Text()
-		log.Info().Str("val", txt).Msgf("[%d]", idx)
+		log.Info().Str("text", txt).Msgf("[Question %d]", idx)
 		evaluateText(txt)
 		idx++
 	}
@@ -70,14 +77,8 @@ func main() {
 		log.Fatal().Err(err).Msg("scannerfailed  ")
 	}
 
-	log.Debug().
-		Interface("0-newCurrenciesMap", newCurrenciesMap).
-		Interface("1-newMineralsMap", newMineralsMap).
-		Msg("Value")
-
 	et := time.Now()
-	fmt.Println(">> Finish at ", et)
-
+	// fmt.Println(">> Finish at ", et)
 	fmt.Println(">> Execution time ", et.Sub(st))
 }
 
@@ -97,6 +98,7 @@ func evaluateText(text string) {
 		AnswerCurrencyComparisonQuestion(text)
 	} else {
 		fmt.Println(ErrQuestionUnrecognized)
+		WriteToOutput(ErrQuestionUnrecognized)
 	}
 }
 
@@ -122,6 +124,28 @@ func IsMatchCreditComparisonQuestion(text string) bool {
 
 func IsMatchCurrencyComparisonQuestion(text string) bool {
 	return regexp.MustCompile(regexCurrencyComparisonQuestion).Match([]byte(text))
+}
+
+func ResetFileOutput() {
+	if err := os.Truncate(FileOutputName, 0); err != nil {
+		log.Printf("Failed to truncate: %v", err)
+	}
+}
+
+func WriteToOutput(content string) {
+	// log.Debug().Str("content", content).Msg("WriteToOutput")
+
+	// open output file
+	fileOutput, err := os.OpenFile(FileOutputName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to open file")
+	}
+	defer fileOutput.Close()
+
+	// Write the content to the file
+	if _, err := fileOutput.WriteString(content + " \n"); err != nil {
+		log.Fatal().Err(err).Msg("Failed to write to file")
+	}
 }
 
 // assigning new currency to roman value
@@ -164,10 +188,10 @@ func CurrencyToRoman(currency string) (string, error) {
 
 // assigning value to Mineral
 func AssignNewMineral(text string) {
-	log.Debug().Msg("AssignNewMineral")
+	// log.Debug().Msg("AssignNewMineral")
 
 	values := regexp.MustCompile(regexNewMineral).FindStringSubmatch(text)
-	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	currency := trimRight(values[1])
 	mineral := trimRight(values[2])
@@ -211,7 +235,7 @@ func AssignNewMineral(text string) {
 }
 
 func AnswerHowMuchQuestion(text string) {
-	log.Debug().Msg("AnswerHowMuchQuestion")
+	// log.Debug().Msg("AnswerHowMuchQuestion")
 
 	values := regexp.MustCompile(regexHowMuchQuestion).FindStringSubmatch(text)
 	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
@@ -234,8 +258,8 @@ func AnswerHowMuchQuestion(text string) {
 
 	answer := fmt.Sprintf("%s is %d", currency, romanNum.Value())
 
-	fmt.Println("answer", answer)
-
+	fmt.Println(answer)
+	WriteToOutput(answer)
 }
 
 func AnswerHowManyCreditQuestion(text string) {
@@ -249,13 +273,15 @@ func AnswerHowManyCreditQuestion(text string) {
 
 	creditValue, err := getMineralValue(currency, mineral)
 	if err != nil {
-		log.Error().Err(err).Msg("getMineralValue failed")
+		// log.Error().Err(err).Msg("getMineralValue failed")
 		return
 	}
 
 	currencyMineral := combineString(currency, mineral)
 	answer := fmt.Sprintf("%s is %d Credits", currencyMineral, int(creditValue))
-	fmt.Println("answer", answer)
+
+	fmt.Println(answer)
+	WriteToOutput(answer)
 }
 
 func combineString(currency, mineral string) string {
@@ -263,11 +289,11 @@ func combineString(currency, mineral string) string {
 }
 
 func AnswerCreditComparisonQuestion(text string) {
-	log.Debug().Msg("AnswerCreditComparisonQuestion")
+	// log.Debug().Msg("AnswerCreditComparisonQuestion")
 
 	pattern := regexp.MustCompile(regexCreditComparisonQuestion)
 	values := pattern.FindStringSubmatch(text)
-	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	leftCurrency := trimRight(values[1])
 	leftMineral := trimRight(values[2])
@@ -303,16 +329,15 @@ func AnswerCreditComparisonQuestion(text string) {
 	}
 
 	answer := fmt.Sprintf("%s has %s Credits than %s", leftCurrencyMineral, comparator, rightCurrencyMineral)
-	fmt.Println("answer", answer)
-
+	fmt.Println(answer)
+	WriteToOutput(answer)
 }
 
 func AnswerCurrencyComparisonQuestion(text string) {
-	log.Debug().Msg("AnswerCurrencyComparisonQuestion")
+	// log.Debug().Msg("AnswerCurrencyComparisonQuestion")
 
-	pattern := regexp.MustCompile(regexCurrencyComparisonQuestion)
-	values := pattern.FindStringSubmatch(text)
-	log.Debug().Strs("values", values).Msg("FindStringSubmatch")
+	values := regexp.MustCompile(regexCurrencyComparisonQuestion).FindStringSubmatch(text)
+	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
 
 	leftCurrency := trimRight(values[1])
 	rightCurrency := trimRight(values[3])
@@ -329,11 +354,11 @@ func AnswerCurrencyComparisonQuestion(text string) {
 		return
 	}
 
-	fmt.Println("leftCurrency =", leftCurrency)
-	fmt.Println("leftCurrencyValue =", leftCurrencyValue)
+	// fmt.Println("leftCurrency =", leftCurrency)
+	// fmt.Println("leftCurrencyValue =", leftCurrencyValue)
 
-	fmt.Println("rightCurrency =", rightCurrency)
-	fmt.Println("rightCurrencyValue =", rightCurrencyValue)
+	// fmt.Println("rightCurrency =", rightCurrency)
+	// fmt.Println("rightCurrencyValue =", rightCurrencyValue)
 
 	comparator := "smaller"
 	if leftCurrencyValue > rightCurrencyValue {
@@ -341,8 +366,8 @@ func AnswerCurrencyComparisonQuestion(text string) {
 	}
 
 	answer := fmt.Sprintf("%s is %s than %s", leftCurrency, comparator, rightCurrency)
-	fmt.Println("answer", answer)
-
+	fmt.Println(answer)
+	WriteToOutput(answer)
 }
 
 func getCurrencyValue(text string) (int64, error) {
@@ -368,7 +393,8 @@ func getMineralValue(currency, mineral string) (value float64, err error) {
 	romanNum, err := numerus.Parse(strRoman)
 	if err != nil {
 		log.Error().Err(err).Msg("numerus.Parse failed")
-		fmt.Println("Requested number is in invalid format")
+		fmt.Println(ErrNumberInvalidFormat)
+		WriteToOutput(ErrNumberInvalidFormat)
 		return
 	}
 	// fmt.Println("romanNum", romanNum.Value())
