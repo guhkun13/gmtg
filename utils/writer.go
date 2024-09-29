@@ -13,7 +13,7 @@ func EmptyFileContent(filename string) {
 	}
 }
 
-func WriteToOutput(content string) {
+func WriteToFileOutput(content string) {
 	// open output file
 	fileOutput, err := os.OpenFile(libs.FileOutputName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
