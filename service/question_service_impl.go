@@ -41,18 +41,42 @@ func (s *QuestionImpl) IsMatchHowManyCreditQuestion(text string) bool {
 
 func (s *QuestionImpl) AnswerHowMuchQuestion(text string) error {
 	values := regexp.MustCompile(s.Regexps.HowMuchQuestion).FindStringSubmatch(text)
-
 	currency := utils.TrimRight(values[1])
-
 	romanNum, err := s.CurrencyService.GetValue(currency)
 	if err != nil {
-		log.Error().Err(err).Msg("ConvertNewCurrencyToRoman failed")
+		log.Error().Err(err).Msg("CurrencyService.GetValue failed")
 		return err
 	}
 
 	answer := fmt.Sprintf("%s is %d", currency, romanNum.Value())
 
-	fmt.Println(answer)
+	log.Info().
+		Str("0-question", text).
+		Str("1-answer", answer).
+		Msg("result")
 	// WriteToOutput(answer)
+	return nil
+}
+
+func (s *QuestionImpl) AnswerHowManyCreditQuestion(text string) error {
+	values := regexp.MustCompile(s.Regexps.HowManyCreditQuestion).FindStringSubmatch(text)
+
+	currencies := utils.TrimRight(values[1])
+	mineralName := utils.TrimRight(values[2])
+
+	mineral, err := s.MineralService.GetValue(currencies, mineralName)
+	if err != nil {
+		log.Error().Err(err).Msg("MineralService.GetValue failed")
+		return err
+	}
+
+	currencyMineral := utils.CombineString(currencies, mineralName)
+	answer := fmt.Sprintf("%s is %d Credits", currencyMineral, int(mineral.Credit))
+
+	log.Info().
+		Str("0-question", text).
+		Str("1-answer", answer).
+		Msg("result")
+
 	return nil
 }

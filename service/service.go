@@ -32,6 +32,8 @@ func (s *Services) EvaluateText(text string) {
 		err = s.Mineral.AssignValue(text)
 	} else if s.Question.IsMatchHowMuchQuestion(text) {
 		err = s.Question.AnswerHowMuchQuestion(text)
+	} else if s.Question.IsMatchHowManyCreditQuestion(text) {
+		err = s.Question.AnswerHowManyCreditQuestion(text)
 	} else {
 		err = libs.ErrUnrecognizedText
 	}
