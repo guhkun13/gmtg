@@ -29,7 +29,7 @@ func NewMineralImpl(regexp string, currencyService CurrencyIface) MineralIface {
 }
 
 func (s *MineralImpl) IsMatchAssignValue(text string) bool {
-	return regexp.MustCompile(s.Regexp).Match([]byte(text))
+	return regexp.MustCompile(s.Regexp).MatchString(text)
 }
 
 func (s *MineralImpl) AssignValue(text string) error {

@@ -37,17 +37,37 @@ func TestIsMatchAssignValue(t *testing.T) {
 		},
 		{
 			name:  "negative case 1",
-			input: "satu was I",
+			input: "",
 			want:  false,
 		},
 		{
 			name:  "negative case 2",
-			input: "dua is P",
+			input: "dua is II",
 			want:  false,
 		},
 		{
 			name:  "negative case 3",
 			input: "what is this",
+			want:  false,
+		},
+		{
+			name:  "negative case 4",
+			input: "limalima is VV",
+			want:  false,
+		},
+		{
+			name:  "negative case 5",
+			input: "satu Is I",
+			want:  false,
+		},
+		{
+			name:  "negative case 6",
+			input: "Satu is I",
+			want:  false,
+		},
+		{
+			name:  "negative case 7",
+			input: "SATU IS I",
 			want:  false,
 		},
 	}

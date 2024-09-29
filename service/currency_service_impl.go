@@ -27,7 +27,7 @@ func NewCurrencyImpl(regexp string) CurrencyIface {
 }
 
 func (s *CurrencyImpl) IsMatchAssignValue(text string) bool {
-	return regexp.MustCompile(s.Regexp).Match([]byte(text))
+	return regexp.MustCompile(s.Regexp).MatchString(text)
 }
 
 func (s *CurrencyImpl) AssignValue(text string) error {
@@ -41,7 +41,6 @@ func (s *CurrencyImpl) AssignValue(text string) error {
 	}
 
 	currenciesMap[currencyStr] = romanNumber.String()
-	// log.Info().Interface("val", currenciesMap).Msg("new currencies")
 
 	return nil
 }

@@ -17,17 +17,17 @@ func NewQuestionImpl(regexps *config.Regexps) QuestionIface {
 }
 
 func (s *QuestionImpl) IsMatchHowMuchQuestion(text string) bool {
-	return regexp.MustCompile(s.Regexps.HowMuchQuestion).Match([]byte(text))
+	return regexp.MustCompile(s.Regexps.HowMuchQuestion).MatchString(text)
 }
 
 func (s *QuestionImpl) IsMatchHowManyCreditQuestion(text string) bool {
-	return regexp.MustCompile(s.Regexps.HowManyCreditQuestion).Match([]byte(text))
+	return regexp.MustCompile(s.Regexps.HowManyCreditQuestion).MatchString(text)
 }
 
 func (s *QuestionImpl) IsMatchCreditComparisonQuestion(text string) bool {
-	return regexp.MustCompile(s.Regexps.CreditComparisonQuestion).Match([]byte(text))
+	return regexp.MustCompile(s.Regexps.CreditComparisonQuestion).MatchString(text)
 }
 
 func (s *QuestionImpl) IsMatchCurrencyComparisonQuestion(text string) bool {
-	return regexp.MustCompile(s.Regexps.CurrencyComparisonQuestion).Match([]byte(text))
+	return regexp.MustCompile(s.Regexps.CurrencyComparisonQuestion).MatchString(text)
 }
