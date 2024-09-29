@@ -26,8 +26,8 @@ type Regexps struct {
 	CurrencyComparisonQuestion string
 }
 
-func InitRegexps() Regexps {
-	return Regexps{
+func InitRegexps() *Regexps {
+	return &Regexps{
 		AssignCurrency:             RegexAssignCurrency,
 		AssignMineral:              RegexAssignMineral,
 		HowMuchQuestion:            RegexHowMuchQuestion,

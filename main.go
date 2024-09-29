@@ -9,6 +9,7 @@ import (
 	"github.com/guhkun13/gmtg/config"
 	"github.com/guhkun13/gmtg/libs"
 	"github.com/guhkun13/gmtg/service"
+	"github.com/guhkun13/gmtg/utils"
 	log "github.com/rs/zerolog/log"
 )
 
@@ -18,7 +19,7 @@ func main() {
 	regexps := config.InitRegexps()
 	services := service.NewServices(regexps)
 
-	libs.EmptyFileContent(libs.FileOutputName)
+	utils.EmptyFileContent(libs.FileOutputName)
 
 	fileInput, err := os.Open(libs.FileInputName)
 	if err != nil {

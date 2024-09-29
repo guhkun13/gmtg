@@ -1,6 +1,7 @@
 package service
 
-// type MineralIface interface {
-// 	AssignValue(text string) error
-// 	GetValue(currencies, mineral string) (Mineral, error)
-// }
+type QuestionIface interface {
+	IsMatchHowMuchQuestion(text string) bool
+	IsMatchHowManyCreditQuestion(text string) bool
+	AnswerHowMuchQuestion(text string) error
+}

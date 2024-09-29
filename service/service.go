@@ -9,14 +9,17 @@ import (
 type Services struct {
 	Currency CurrencyIface
 	Mineral  MineralIface
+	Question QuestionIface
 }
 
-func NewServices(regexps config.Regexps) Services {
+func NewServices(regexps *config.Regexps) Services {
 	currencyService := NewCurrencyImpl(regexps.AssignCurrency)
+	mineralService := NewMineralImpl(regexps.AssignMineral, currencyService)
 
 	return Services{
 		Currency: currencyService,
-		Mineral:  NewMineralImpl(regexps.AssignMineral, currencyService),
+		Mineral:  mineralService,
+		Question: NewQuestionImpl(regexps, currencyService, mineralService),
 	}
 }
 
@@ -25,69 +28,18 @@ func (s *Services) EvaluateText(text string) {
 
 	if s.Currency.IsMatchAssignValue(text) {
 		err = s.Currency.AssignValue(text)
-		if err != nil {
-			log.Error().Err(err).Msg("Currency.AssignValue failed")
-		}
 	} else if s.Mineral.IsMatchAssignValue(text) {
 		err = s.Mineral.AssignValue(text)
-		if err != nil {
-			log.Error().Err(err).Msg("Mineral.AssignValue failed")
-		}
+	} else if s.Question.IsMatchHowMuchQuestion(text) {
+		err = s.Question.AnswerHowMuchQuestion(text)
 	} else {
 		err = libs.ErrUnrecognizedText
-		log.Error().Err(err).Msg("Err happened")
+	}
+
+	if err != nil {
+		log.Error().Err(err).Msg("Error occured")
 	}
 }
-
-// func evaluateText(text string) {
-
-// 	if text {
-// 		AssignNewCurrency(text)
-// 	} else if utils.IsMatchNewMineral(text) {
-// 		AssignNewMineral(text)
-// 	} else if utils.IsMatchHowMuchQuestion(text) {
-// 		AnswerHowMuchQuestion(text)
-// 	}
-
-// 	// else if utils.IsMatchHowManyCreditQuestion(text) {
-// 	// 	AnswerHowManyCreditQuestion(text)
-// 	// } else if utils.IsMatchCreditComparisonQuestion(text) {
-// 	// 	AnswerCreditComparisonQuestion(text)
-// 	// } else if utils.IsMatchCurrencyComparisonQuestion(text) {
-// 	// 	AnswerCurrencyComparisonQuestion(text)
-// 	// } else {
-// 	// 	fmt.Println(libs.ErrQuestionUnrecognized)
-// 	// 	utils.WriteToOutput(libs.ErrQuestionUnrecognized.Error())
-// 	// }
-// }
-
-// func AnswerHowMuchQuestion(text string) {
-// 	// log.Debug().Msg("AnswerHowMuchQuestion")
-
-// 	values := regexp.MustCompile(regexHowMuchQuestion).FindStringSubmatch(text)
-// 	// log.Debug().Strs("values", values).Msg("FindStringSubmatch")
-
-// 	currency := trimRight(values[1])
-
-// 	romanStr, err := ConvertNewCurrencyToRoman(currency)
-// 	if err != nil {
-// 		log.Error().Err(err).Msg("ConvertNewCurrencyToRoman failed")
-// 	}
-
-// 	// fmt.Println("romanStr", romanStr)
-
-// 	romanNum, err := numerus.Parse(romanStr)
-// 	if err != nil {
-// 		log.Error().Err(err).Msg("numerus.Parse failed")
-// 	}
-
-// 	// fmt.Println("intValue", romanNum.Value())
-
-// 	answer := fmt.Sprintf("%s is %d", currency, romanNum.Value())
-
-// 	fmt.Println(answer)
-// 	WriteToOutput(answer)
-// }
 
 // func AnswerCreditComparisonQuestion(text string) {
 // 	// log.Debug().Msg("AnswerCreditComparisonQuestion")

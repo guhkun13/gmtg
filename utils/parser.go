@@ -6,14 +6,6 @@ import (
 	"github.com/guhkun13/gmtg/config"
 )
 
-func IsMatchHowMuchQuestion(text string) bool {
-	return regexp.MustCompile(config.RegexHowMuchQuestion).Match([]byte(text))
-}
-
-func IsMatchHowManyCreditQuestion(text string) bool {
-	return regexp.MustCompile(config.RegexHowManyCreditQuestion).Match([]byte(text))
-}
-
 func IsMatchCreditComparisonQuestion(text string) bool {
 	return regexp.MustCompile(config.RegexCreditComparisonQuestion).Match([]byte(text))
 }

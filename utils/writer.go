@@ -7,9 +7,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func WriteToOutput(content string) {
-	// log.Debug().Str("content", content).Msg("WriteToOutput")
+func EmptyFileContent(filename string) {
+	if err := os.Truncate(filename, 0); err != nil {
+		log.Printf("Failed to truncate: %v", err)
+	}
+}
 
+func WriteToOutput(content string) {
 	// open output file
 	fileOutput, err := os.OpenFile(libs.FileOutputName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
