@@ -43,12 +43,6 @@ var newCurrenciesMap = make(map[string]string)
 var newMineralsMap = make(map[string]float64)
 
 func main() {
-	// fmt.Println(regexNewCurrency)
-	// fmt.Println(regexNewMineral)
-	// fmt.Println(regexHowMuchQuestion)
-	// fmt.Println(regexHowManyCreditQuestion)
-	// fmt.Println(regexCreditComparisonQuestion)
-
 	config.InitLogger()
 
 	ResetFileOutput()
