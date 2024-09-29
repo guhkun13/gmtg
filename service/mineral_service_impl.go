@@ -36,6 +36,9 @@ func (s *MineralImpl) AssignValue(text string) error {
 	values := regexp.MustCompile(s.Regexp).FindStringSubmatch(text)
 	// log.Debug().Interface("values", values).Msg("FindStringSubmatch")
 
+	if len(values) < 3 {
+		return libs.ErrUnrecognizedText
+	}
 	currency := utils.TrimRight(values[1])
 	mineralName := utils.TrimRight(values[2])
 	strTotalAmount := utils.TrimRight(values[3])

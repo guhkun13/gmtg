@@ -32,6 +32,9 @@ func (s *CurrencyImpl) IsMatchAssignValue(text string) bool {
 
 func (s *CurrencyImpl) AssignValue(text string) error {
 	values := regexp.MustCompile(s.Regexp).FindStringSubmatch(text)
+	if len(values) < 2 {
+		return libs.ErrUnrecognizedText
+	}
 	currencyStr := utils.TrimRight(values[1])
 	romanStr := utils.TrimRight(values[2])
 

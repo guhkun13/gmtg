@@ -3,8 +3,6 @@ package service
 import (
 	"github.com/guhkun13/gmtg/config"
 	"github.com/guhkun13/gmtg/libs"
-	"github.com/guhkun13/gmtg/utils"
-	"github.com/rs/zerolog/log"
 )
 
 type Services struct {
@@ -26,7 +24,7 @@ func NewServices(regexps *config.Regexps) Services {
 	}
 }
 
-func (s *Services) EvaluateText(text string) {
+func (s *Services) EvaluateText(text string) string {
 	var err error
 	answer := ""
 	isQuestion := true
@@ -53,14 +51,8 @@ func (s *Services) EvaluateText(text string) {
 		if err != nil {
 			answer = err.Error()
 		}
-
-		log.Info().
-			Str("0-question", text).
-			Str("1-answer", answer).
-			Msg("result")
-
-		// write the answer to outputfile
-		utils.WriteToFileOutput(answer)
 	}
+
+	return answer
 
 }

@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/guhkun13/gmtg/config"
+	"github.com/guhkun13/gmtg/libs"
 	"github.com/guhkun13/gmtg/utils"
 	"github.com/rs/zerolog/log"
 )
@@ -28,6 +29,9 @@ func NewAnswerImpl(regexps *config.Regexps,
 
 func (s *AnswerImpl) AnswerHowMuchQuestion(text string) (string, error) {
 	values := regexp.MustCompile(s.Regexps.HowMuchQuestion).FindStringSubmatch(text)
+	if len(values) < 1 {
+		return "", libs.ErrUnrecognizedText
+	}
 	currency := utils.TrimRight(values[1])
 	romanNum, err := s.CurrencyService.GetValue(currency)
 	if err != nil {
@@ -43,6 +47,9 @@ func (s *AnswerImpl) AnswerHowMuchQuestion(text string) (string, error) {
 func (s *AnswerImpl) AnswerHowManyCreditQuestion(text string) (string, error) {
 	values := regexp.MustCompile(s.Regexps.HowManyCreditQuestion).FindStringSubmatch(text)
 
+	if len(values) < 2 {
+		return "", libs.ErrUnrecognizedText
+	}
 	currencies := utils.TrimRight(values[1])
 	mineralName := utils.TrimRight(values[2])
 
@@ -53,13 +60,18 @@ func (s *AnswerImpl) AnswerHowManyCreditQuestion(text string) (string, error) {
 	}
 
 	currencyMineral := utils.CombineString(currencies, mineralName)
-	answer := fmt.Sprintf("%s is %d Credits", currencyMineral, int(mineral.Credit))
+
+	answer := fmt.Sprintf("%s is %v Credits", currencyMineral, mineral.Credit)
 
 	return answer, nil
 }
 
 func (s *AnswerImpl) AnswerCreditComparisonQuestion(text string) (string, error) {
 	values := regexp.MustCompile(s.Regexps.CreditComparisonQuestion).FindStringSubmatch(text)
+
+	if len(values) < 5 {
+		return "", libs.ErrUnrecognizedText
+	}
 
 	leftCurrency := utils.TrimRight(values[1])
 	leftMineralName := utils.TrimRight(values[2])
@@ -100,6 +112,10 @@ func (s *AnswerImpl) AnswerCreditComparisonQuestion(text string) (string, error)
 
 func (s *AnswerImpl) AnswerCurrencyComparisonQuestion(text string) (string, error) {
 	values := regexp.MustCompile(s.Regexps.CurrencyComparisonQuestion).FindStringSubmatch(text)
+
+	if len(values) < 3 {
+		return "", libs.ErrUnrecognizedText
+	}
 
 	leftCurrency := utils.TrimRight(values[1])
 	rightCurrency := utils.TrimRight(values[3])

@@ -38,7 +38,14 @@ func main() {
 	st := time.Now()
 	for scanner.Scan() {
 		text := scanner.Text()
-		services.EvaluateText(text)
+		answer := services.EvaluateText(text)
+
+		log.Info().
+			Str("0-question", text).
+			Str("1-answer", answer).
+			Msg("result")
+
+		utils.WriteToFileOutput(answer)
 	}
 
 	err = scanner.Err()
