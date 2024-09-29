@@ -9,7 +9,7 @@ const (
 )
 
 var (
-	RegexAssignCurrency             string = fmt.Sprintf(`^%s is %s`, regexCurrency, regexRomanChar)
+	RegexAssignCurrency             string = fmt.Sprintf(`^%s is %s$`, regexCurrency, regexRomanChar)
 	RegexAssignMineral              string = fmt.Sprintf(`^%s%s is (\d+) Credits$`, regexCurrency, regexMineral)
 	RegexHowMuchQuestion            string = fmt.Sprintf(`^[H|h]ow much is %s\?$`, regexCurrency)
 	RegexHowManyCreditQuestion      string = fmt.Sprintf(`^[H|h]ow many Credits is %s%s\?$`, regexCurrency, regexMineral)
