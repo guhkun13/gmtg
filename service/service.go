@@ -10,6 +10,7 @@ type Services struct {
 	Currency CurrencyIface
 	Mineral  MineralIface
 	Question QuestionIface
+	Answer   AnswerIface
 }
 
 func NewServices(regexps *config.Regexps) Services {
@@ -19,7 +20,8 @@ func NewServices(regexps *config.Regexps) Services {
 	return Services{
 		Currency: currencyService,
 		Mineral:  mineralService,
-		Question: NewQuestionImpl(regexps, currencyService, mineralService),
+		Question: NewQuestionImpl(regexps),
+		Answer:   NewAnswerImpl(regexps, currencyService, mineralService),
 	}
 }
 
@@ -35,9 +37,13 @@ func (s *Services) EvaluateText(text string) {
 		isQuestion = false
 		err = s.Mineral.AssignValue(text)
 	} else if s.Question.IsMatchHowMuchQuestion(text) {
-		answer, err = s.Question.AnswerHowMuchQuestion(text)
+		answer, err = s.Answer.AnswerHowMuchQuestion(text)
 	} else if s.Question.IsMatchHowManyCreditQuestion(text) {
-		answer, err = s.Question.AnswerHowManyCreditQuestion(text)
+		answer, err = s.Answer.AnswerHowManyCreditQuestion(text)
+	} else if s.Question.IsMatchCreditComparisonQuestion(text) {
+		answer, err = s.Answer.AnswerCreditComparisonQuestion(text)
+	} else if s.Question.IsMatchCurrencyComparisonQuestion(text) {
+		err = libs.ErrUnrecognizedText
 	} else {
 		err = libs.ErrUnrecognizedText
 	}
