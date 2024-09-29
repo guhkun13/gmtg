@@ -43,7 +43,7 @@ func (s *Services) EvaluateText(text string) {
 	} else if s.Question.IsMatchCreditComparisonQuestion(text) {
 		answer, err = s.Answer.AnswerCreditComparisonQuestion(text)
 	} else if s.Question.IsMatchCurrencyComparisonQuestion(text) {
-		err = libs.ErrUnrecognizedText
+		answer, err = s.Answer.AnswerCurrencyComparisonQuestion(text)
 	} else {
 		err = libs.ErrUnrecognizedText
 	}

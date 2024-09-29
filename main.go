@@ -13,8 +13,12 @@ import (
 	log "github.com/rs/zerolog/log"
 )
 
+// set isDebug to false by default so that DEBUG message not showed
+const isDebug = false
+
 func main() {
-	config.InitLogger()
+
+	config.InitLogger(isDebug)
 
 	regexps := config.InitRegexps()
 	services := service.NewServices(regexps)
@@ -31,7 +35,6 @@ func main() {
 	st := time.Now()
 	for scanner.Scan() {
 		line := scanner.Text()
-		// log.Info().Str("val", line).Msg("Line")
 		services.EvaluateText(line)
 	}
 

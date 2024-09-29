@@ -19,6 +19,11 @@ trace (zerolog.TraceLevel, -1)
 ref: https://github.com/rs/zerolog?tab=readme-ov-file#leveled-logging
 */
 
-func InitLogger() {
+func InitLogger(isDebug bool) {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if isDebug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
 }
