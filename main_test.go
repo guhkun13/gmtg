@@ -98,6 +98,16 @@ func TestMain(t *testing.T) {
 			input: "how many Credits is pish tegj glob Iron ?",
 			want:  "pish tegj glob Iron is 8015.5 Credits",
 		},
+		{
+			desc:  "#4 case 5",
+			input: "how many Credits is glob Silver ?",
+			want:  "glob Silver is 17 Credits",
+		},
+		{
+			desc:  "#4 case 6",
+			input: "how many Credits is Silver ?",
+			want:  "I have no idea what you are talking about",
+		},
 	}
 
 	testCasesCreditComparisonQuestion := []struct {

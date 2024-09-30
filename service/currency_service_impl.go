@@ -49,21 +49,22 @@ func (s *CurrencyImpl) AssignValue(text string) error {
 }
 
 func (s *CurrencyImpl) GetValue(text string) (res RomanNumeral, err error) {
-	currencies := strings.Split(text, " ")
-	if len(currencies) == 1 {
-		return toRoman(text)
+
+	if !strings.Contains(text, " ") {
+		roman, errVal := s.validateAndGetRoman(text)
+		if errVal != nil {
+			err = errVal
+			return
+		}
+		return roman, nil
 	}
+	currencies := strings.Split(text, " ")
 
 	romanString := ""
 	for _, currency := range currencies {
-		val, ok := s.isExist(currency)
-		if !ok {
-			err = libs.ErrCurrencyDoesNotExist
-			return
-		}
-		roman, errConv := toRoman(val)
-		if errConv != nil {
-			err = errConv
+		roman, errVal := s.validateAndGetRoman(currency)
+		if errVal != nil {
+			err = errVal
 			return
 		}
 		romanString += roman.String
@@ -75,6 +76,22 @@ func (s *CurrencyImpl) GetValue(text string) (res RomanNumeral, err error) {
 	}
 
 	return res, nil
+}
+
+func (s *CurrencyImpl) validateAndGetRoman(text string) (res RomanNumeral, err error) {
+	val, ok := s.isExist(text)
+	if !ok {
+		err = libs.ErrCurrencyDoesNotExist
+		return
+	}
+
+	roman, errConv := toRoman(val)
+	if errConv != nil {
+		err = errConv
+		return
+	}
+
+	return roman, nil
 }
 
 func toRoman(currency string) (RomanNumeral, error) {

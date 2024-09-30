@@ -62,7 +62,6 @@ func (s *MineralImpl) AssignValue(text string) error {
 }
 
 func (s *MineralImpl) GetValue(currencies, mineral string) (res Mineral, err error) {
-
 	val, ok := s.isExist(mineral)
 	if !ok {
 		err = libs.ErrMineralDoesNotExist

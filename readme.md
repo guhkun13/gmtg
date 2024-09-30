@@ -79,7 +79,10 @@ In the above example, 1,000 = M, 900 = CM, and 3 = III. Therefore, 1903 = MCMIII
 Based on the user story, this program provides several features, such as;
 
 - **Register a New Galactic Currency**: Users can register a new galactic currency by mapping it to a Roman numeral equivalent (e.g., glob is mapped to I, prok is mapped to V).
-- **Register Mineral Values**: Users can provide the value of minerals in terms of credits (e.g., glob glob Silver is 34 Credits).
+- **Register Mineral Values**: 
+Register the value of minerals using the galactic currencies. 
+> Please note that a **valid** mineral query must be preceded by one or more galactic currencies. The system will not recognize the pattern otherwise.
+
 - **Currency Conversion**: The system can answer how much a galactic currency value is worth by converting the currency into Roman numerals and then into an integer.
 - **Credit Calculation**: Users can inquire how many credits a certain mineral is worth based on previously registered currency and mineral values.
 
@@ -105,6 +108,9 @@ pish pish Iron is 3910 Credits
 ```
 
 Here, the system will calculate the value of the mineral (Silver, Gold, Iron) based on the currency values provided, and store the credit value for future inquiries.
+Define Mineral Values
+> Please note that a **valid** mineral query must be preceded by one or more galactic currencies. 
+The system will not recognize the pattern otherwise.
 
 
 ### Inquiring Galactic Currency Value
@@ -123,8 +129,20 @@ You can also ask how many credits a specific amount of a mineral is worth. For e
 how many Credits is glob prok Silver ?
 how many Credits is pish tegj glob Iron ?
 ```
-
 The system will respond with the number of credits based on the currency value and mineral credit registration.
+>Please note that a **valid** mineral query must be preceded by one or more galactic currencies. 
+The system will not recognize the pattern otherwise.
+
+
+### Comparing Mineral Value in terms of Credits  
+
+Users can compare credit values between different minerals or between minerals and currencies.
+Users can ask questions about whether one mineral has more or fewer Credits than another
+
+### Comparing Currencies Value
+ Users can compare the value of different currencies.
+ Users can ask questions about whether one mineral larger or smaller than another
+
 
 ### Example Queries
 > `how much is glob prok?`
@@ -136,10 +154,22 @@ The system will respond with the number of credits based on the currency value a
 > `how many Credits is pish tegj Iron?`
 >> Output: "pish tegj Iron is 782 Credits"
 
+> `Does pish tegj glob glob Iron has more Credits than glob glob Gold ?`
+>> Output: "pish tegj glob glob Iron  has less Credits than glob prok Gold"
+
+> `Is glob prok larger than pish pish?`
+>> Output: "glob prok is smaller than pish pish"
+
+> `how much wood could a woodchuck chuck if a woodchuck could chuck wood ?`
+>> Output: "I have no idea what you are talking about"
+
 ## How It Works
 1. **Currency Registration**: Map galactic terms to Roman numerals.
-1. **Credit Calculation**: Use the Roman numeral equivalents to calculate the value of minerals in credits.
-1. **Query Answering**: Based on the stored values and conversions, the system can answer various user queries regarding the galactic currency or mineral credits.
+1. **Mineral Registration**: Map Mineral name to galactic currencies
+1. **Credit Calculation**: Use the Roman numeral equivalents to calculate the value of minerals in terms of Credits.
+1. **Query Answering**: Based on the stored values and conversions, the system can answer various user queries regarding the galactic currency or mineral credits, like how much is the galactic currencies in terms of Roman Numeral and how many Credits is a Mineral. 
+1. **Currencies Comparison**: Compare between currencies using smaller/larger comparisons 
+1. **Credit Mineral Comparison**: Compare the value of mineral in terms of Credits using more/less comparisons
 
 ### Roman Numeral Conversion
 
@@ -159,7 +189,7 @@ M	    1000
 ### Roman Numeral Rules
 - **Addition**: Smaller values before larger ones are added (e.g., VI = 6).
 - **Subtraction**: Smaller values before larger ones are subtracted (e.g., IV = 4).
-Complete rules can be checked on 
+Complete rules can be checked on Wikipeda (http://en.wikipedia.org/wiki/Roman_numerals) 
 
 ## How to Run
 You can use this system by inputting galactic currencies, minerals, and querying their values as described above.
