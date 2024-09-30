@@ -3,7 +3,6 @@ package utils
 import (
 	"os"
 
-	"github.com/guhkun13/gmtg/libs"
 	"github.com/rs/zerolog/log"
 )
 
@@ -13,9 +12,9 @@ func EmptyFileContent(filename string) {
 	}
 }
 
-func WriteToFileOutput(content string) {
+func WriteToFileOutput(filename, content string) {
 	// open output file
-	fileOutput, err := os.OpenFile(libs.FileOutputName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fileOutput, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to open file")
 	}

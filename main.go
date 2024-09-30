@@ -7,13 +7,15 @@ import (
 	"time"
 
 	"github.com/guhkun13/gmtg/config"
-	"github.com/guhkun13/gmtg/libs"
 	"github.com/guhkun13/gmtg/service"
 	"github.com/guhkun13/gmtg/utils"
 	log "github.com/rs/zerolog/log"
 )
 
 // set isDebug to false by default so that DEBUG message not showed
+
+const FileInputName string = "input.txt"
+const FileOutputName string = "output.txt"
 
 func main() {
 	env, err := config.LoadEnv()
@@ -26,9 +28,9 @@ func main() {
 	regexps := config.InitRegexps()
 	services := service.NewServices(regexps)
 
-	utils.EmptyFileContent(libs.FileOutputName)
+	utils.EmptyFileContent(FileOutputName)
 
-	fileInput, err := os.Open(libs.FileInputName)
+	fileInput, err := os.Open(FileInputName)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to open input file")
 	}
@@ -46,7 +48,7 @@ func main() {
 			Msg("result")
 
 		if answer != "" {
-			utils.WriteToFileOutput(answer)
+			utils.WriteToFileOutput(FileOutputName, answer)
 		}
 	}
 
