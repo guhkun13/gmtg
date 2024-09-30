@@ -71,6 +71,31 @@ func TestMain(t *testing.T) {
 			input: "how much is pish tegj glob glob ?",
 			want:  "pish tegj glob glob is 42",
 		},
+		{
+			desc:  "#3 case 2",
+			input: "how much is glob?",
+			want:  "glob is 1",
+		},
+		{
+			desc:  "#3 case 3",
+			input: "how much is globglob ?",
+			want:  "Currency does not exist",
+		},
+		{
+			desc:  "#3 case 4",
+			input: "how much is satu ?",
+			want:  "Currency does not exist",
+		},
+		{
+			desc:  "#3 case 5",
+			input: "how much is glob pish ?",
+			want:  "glob pish is 9",
+		},
+		{
+			desc:  "#3 case 6",
+			input: "how much is prok prok ?",
+			want:  "Requested number is in invalid format",
+		},
 	}
 
 	testCasesHowManyCreditQuestion := []struct {
