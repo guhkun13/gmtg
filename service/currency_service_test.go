@@ -7,7 +7,7 @@ import (
 	"github.com/guhkun13/gmtg/libs"
 )
 
-func TestIsMatchAssignValue(t *testing.T) {
+func TestCurrencyIsMatchAssignValue(t *testing.T) {
 	regexp := config.RegexAssignCurrency
 	srv := NewCurrencyImpl(regexp)
 
@@ -83,7 +83,7 @@ func TestIsMatchAssignValue(t *testing.T) {
 	}
 }
 
-func TestAssignValue(t *testing.T) {
+func TestCurrencyAssignValue(t *testing.T) {
 	regexp := config.RegexAssignCurrency
 	srv := NewCurrencyImpl(regexp)
 
@@ -139,6 +139,94 @@ func TestAssignValue(t *testing.T) {
 			got := srv.AssignValue(tt.input)
 			if got != tt.want {
 				t.Errorf("AssignValue [%v], got %v, want %v", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCurrencyGetValue(t *testing.T) {
+	regexp := config.RegexAssignCurrency
+	srv := NewCurrencyImpl(regexp)
+
+	testCasesInput := []struct {
+		name  string
+		input string
+		want  error
+	}{
+		{
+			name:  "#1 case 1",
+			input: "satu is I",
+			want:  nil,
+		},
+		{
+			name:  "#1 case 2",
+			input: "lima is V",
+			want:  nil,
+		},
+		{
+			name:  "#1 case 3",
+			input: "sepuluh is X",
+			want:  nil,
+		},
+	}
+
+	for _, tt := range testCasesInput {
+		t.Run(tt.name, func(t *testing.T) {
+			got := srv.AssignValue(tt.input)
+			if got != tt.want {
+				t.Errorf("AssignValue [%v], got %v, want %v", tt.input, got, tt.want)
+			}
+		})
+	}
+
+	testCasesGetValue := []struct {
+		name    string
+		input   string
+		wantStr string
+		wantInt int64
+		err     error
+	}{
+		{
+			name:    "#2 case 1",
+			input:   "satu",
+			wantStr: "I",
+			wantInt: 1,
+			err:     nil,
+		},
+		{
+			name:    "#2 case 2",
+			input:   "satu satu",
+			wantStr: "II",
+			wantInt: 2,
+			err:     nil,
+		},
+		{
+			name:    "#2 case 3",
+			input:   "lima",
+			wantStr: "V",
+			wantInt: 5,
+			err:     nil,
+		},
+		{
+			name:    "#2 case 4",
+			input:   "sebelas",
+			wantStr: "",
+			wantInt: 0,
+			err:     libs.ErrCurrencyDoesNotExist,
+		},
+		{
+			name:    "#2 case 5",
+			input:   "sepuluh",
+			wantStr: "X",
+			wantInt: 10,
+			err:     nil,
+		},
+	}
+	for _, ttg := range testCasesGetValue {
+		t.Run(ttg.name, func(t *testing.T) {
+			got, err := srv.GetValue(ttg.input)
+			if got.String != ttg.wantStr || got.Value != ttg.wantInt || ttg.err != err {
+				t.Errorf("GetValue [%v], got %v, want %v, %v, %v", ttg.input, got, ttg.wantStr, ttg.wantInt, ttg.err)
 			}
 		})
 	}

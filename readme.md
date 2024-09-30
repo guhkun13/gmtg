@@ -246,12 +246,22 @@ M	    1000
 - **Subtraction**: Smaller values before larger ones are subtracted (e.g., IV = 4).
 Complete rules can be checked on Wikipeda (http://en.wikipedia.org/wiki/Roman_numerals) 
 
-## How to Run
-You can use this system by inputting galactic currencies, minerals, and querying their values as described above.
+## Limitation
+There are some limitations on this program, such as :
+1. The input is case sensitive (mostly) and so all the unrecognized input text will be answered by message 
+```bash 
+I have no idea what you are talking about
+```
 
-## Resources
+2. Testing in `Service Layer` are limited because of the complexity in mocking the required data and so the coverage is kinda low. 
 
-1. For handling Roman Numerals, i use library package from: https://pkg.go.dev/github.com/dhowden/numerus 
+(but the real reason because I start doing the test on weekend and so out of 5 days given, I only use 2 days effectivey. Well, this weekend was very hectic because of the project deadline, so yeah, I really hope I can score this technical test)
+
+3. To speed things up, I use existing go library/package for handling the Roman Numeral from: https://pkg.go.dev/github.com/dhowden/numerus . Well, the rules are set and there are many other packages handling the Roman Number and so I just random picked it. 
+
+4. Using AI to help generate readme (not 100%) and so some of the sentences may a bit inconsistents due to several prompt and copy-paste.
+
+5. Lasty, I hope I can do well on this Technical Test. I do not know if the recruiter or the tester read this up to this point, but if you do, **THANK YOU FOR THE OPPORTUNITY and YOU ARE AMAZING** :) I hope you have nice days ahead.
 
 ## Authors
 
