@@ -6,7 +6,7 @@ import (
 	"github.com/guhkun13/gmtg/config"
 )
 
-func TestMineras(t *testing.T) {
+func TestMineral(t *testing.T) {
 	currencyService := NewCurrencyImpl(config.RegexAssignCurrency)
 	srv := NewMineralImpl(config.RegexAssignMineral, currencyService)
 
