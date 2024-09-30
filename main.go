@@ -45,7 +45,9 @@ func main() {
 			Str("1-answer", answer).
 			Msg("result")
 
-		utils.WriteToFileOutput(answer)
+		if answer != "" {
+			utils.WriteToFileOutput(answer)
+		}
 	}
 
 	err = scanner.Err()

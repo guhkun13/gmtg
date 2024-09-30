@@ -1,6 +1,9 @@
 # Galactic Merchant Guide Trading
 Welcome to the Galactic Merchant Guide Trading system! This system allows intergalactic traders to register new currency values, convert them into Roman numerals, and calculate the credit values for minerals based on these new currencies. The system supports interactions where users can ask about the value of new currencies or calculate the credit value of minerals.
 
+## Disclaimer
+This project was developed in order to apply for position Senior System Backend Engineer at ProSpace
+
 ## Background Story
 You decided to give up on earth after the latest financial collapse left 99.99% of the earth's
 population with 0.01% of the wealth. Luckily, with the scant sum of money that is left in your
@@ -74,6 +77,58 @@ In the above example, 1,000 = M, 900 = CM, and 3 = III. Therefore, 1903 = MCMIII
 - glob prok is smaller than pish pish
 - tegj glob glob is larger than glob prok
 - I have no idea what you are talking about
+
+## Proposed Solution
+
+1. We can see a pattern on the input and so we will create different service based on the context and also the input pattern
+2. For context, we can separates it into 2 based on the activity/effect of the input; 
+   - Assigning a value
+   - Questioning / Inquiring the value
+ 
+3. As for the object context, we can split it into 2 groups: 
+   - Galactic Currencies
+   - Mineral 
+4. And so, we are going to make a service based on the informations above by making it into 4 service 
+   - **Currency Service** : Handling currency registration and its value
+   - **Mineral Service** : Handling mineral registration and its value
+   - **Question Service** : Handling question, it will be answered by Answer Service
+   - **Answer Service** : Answering the question by calling the related/appropriate services related to the question
+
+5. As for the input pattern, we can split it into 6 categories and make a regex expression from each of it to help us later in identifying the input 
+    - Assign Currency : ` "^((?:[a-z]+\\s?)+) is ([IVXLCDM])$"`
+    - Assign Mineral : ` "^((?:[a-z]+\\s?)+)([A-Z][a-z]+\\s?) is (\\d+) Credits$"`
+    - Credit Comparison Question : ` "^[D|d]oes ((?:[a-z]+\\s?)+)([A-Z][a-z]+\\s?) has (less|more) Credits than ((?:[a-z]+\\s?)+)([A-Z][a-z]+\\s?)\\?"`
+    - Currency Comparison Question : ` "^[I|i]s ((?:[a-z]+\\s?)+) (larger|smaller) than ((?:[a-z]+\\s?)+)\\?$"`
+    - How Many Credit Question : ` "^[H|h]ow many Credits is ((?:[a-z]+\\s?)+)([A-Z][a-z]+\\s?)\\?$"`
+    - How Much Question : ` "^[H|h]ow much is ((?:[a-z]+\\s?)+)\\?$" `
+6. We will evaluate each input based on the regex above and will call the appropriate service to handle it.
+7. Lasty, to simplify the program making and demo, the input value will be scanned from text file which contains all the input on each lines. If later on we need to read the input  and give the answer directly, we can create a CLI app using [cobra](https://github.com/spf13/cobra). But for now, reading from text file I think is suffice
+
+## How to Run
+1. After cloning the repo, make sure you are on root directory of the project by checking if the file `main.go` exist on the same level or not.
+
+2. Installing all the required modules/deps by tyiping
+```go
+ go mod tidy
+```
+
+It is equivalent with `pip install -r requirements.txt` in python app or `npm install` in node.js app
+
+2. To run the program, type 
+```go
+go run main.go
+```
+
+2. To check the unit testing of the program, type
+```go
+go test . 
+``` 
+or for more verbose result, add `-v` to the command.
+```go
+go test . -v 
+```
+
+
 
 ## Features
 Based on the user story, this program provides several features, such as;
@@ -197,3 +252,7 @@ You can use this system by inputting galactic currencies, minerals, and querying
 ## Resources
 
 1. For handling Roman Numerals, i use library package from: https://pkg.go.dev/github.com/dhowden/numerus 
+
+## Authors
+
+- Guhkun13: https://github.com/guhkun13/
